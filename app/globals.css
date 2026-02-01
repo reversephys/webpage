@@ -1,10 +1,8 @@
-@import url('https://fonts.cdnfonts.com/css/chomsky');
 @import "tailwindcss";
 
 :root {
   --background: #ffffff;
   --foreground: #111111;
-  --font-chomsky: 'Chomsky', serif;
 }
 
 @theme inline {
@@ -12,7 +10,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-inter);
   --font-serif: var(--font-playfair);
-  --font-chomsky: var(--font-chomsky);
+  --font-eczar: var(--font-eczar);
 }
 
 @media (prefers-color-scheme: dark) {

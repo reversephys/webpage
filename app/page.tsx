@@ -21,11 +21,11 @@ export default function Home() {
 
         {/* Content Overlay */}
         <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-6xl md:text-8xl lg:text-9xl font-chomsky tracking-tighter mb-6 drop-shadow-2xl">
+          <h1 className="text-6xl md:text-8xl lg:text-9xl font-eczar uppercase tracking-tighter mb-6 drop-shadow-2xl">
             Physical Lab
           </h1>
           <p className="text-xl md:text-2xl font-serif italic tracking-widest uppercase opacity-90 mb-8">
-            Reverse Engineering & Hardware Security
+            Hardware Security
           </p>
           <div className="flex justify-center gap-4">
             <Link href="/blog" className="px-8 py-3 bg-white text-black font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors">

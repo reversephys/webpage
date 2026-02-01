@@ -2,7 +2,7 @@ export default function AboutPage() {
     return (
         <main className="min-h-screen bg-background pt-32 pb-20 px-6 font-serif">
             <div className="max-w-4xl mx-auto">
-                <h1 className="text-5xl md:text-8xl font-chomsky mb-12 tracking-tight text-center">Physical Lab</h1>
+                <h1 className="text-5xl md:text-8xl font-eczar mb-12 tracking-tight text-center">Physical Lab</h1>
 
                 <div className="text-lg md:text-xl leading-loose text-gray-700 dark:text-gray-300 space-y-8 first-letter:text-5xl first-letter:font-bold first-letter:float-left first-letter:mr-3">
                     <p>

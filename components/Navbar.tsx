@@ -21,9 +21,9 @@ export function Navbar() {
         <nav className="fixed top-0 left-0 w-full z-50 bg-background/90 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 transition-all duration-300">
             <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
 
-                {/* Logo - Chomsky Font */}
-                <Link href="/" className="text-3xl font-chomsky tracking-wider hover:opacity-80 transition-opacity">
-                    Physical Lab
+                {/* Logo - Eczar Font */}
+                <Link href="/" className="text-3xl font-eczar tracking-wider hover:opacity-80 transition-opacity">
+                    PHYSICAL LAB
                 </Link>
 
                 {/* Desktop Menu */}
