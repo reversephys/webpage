@@ -236,9 +236,11 @@ function BlogWriteEditor() {
                     Back to Posts
                 </Link>
 
-                <h1 className="text-5xl md:text-7xl font-eczar tracking-tight mb-12">
-                    {editSlug ? "Edit Post" : "New Post"}
-                </h1>
+                {!editSlug && (
+                    <h1 className="text-5xl md:text-7xl font-eczar tracking-tight mb-12">
+                        New Post
+                    </h1>
+                )}
 
                 {/* Title input */}
                 <div className="mb-6">
