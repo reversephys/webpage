@@ -19,7 +19,7 @@ export default function NewsPage() {
     return (
         <main className="min-h-screen bg-background pt-32 pb-20 px-6 font-serif">
             <div className="max-w-4xl mx-auto">
-                <h1 className="text-5xl md:text-7xl font-bold mb-16 tracking-tight">News</h1>
+                <h1 className="text-5xl md:text-7xl font-eczar mb-16 tracking-tight">News</h1>
 
                 <div className="space-y-12">
                     {news.map((item) => (
