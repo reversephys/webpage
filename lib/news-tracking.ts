@@ -50,8 +50,23 @@ export function trackClick(article: { link: string; title: string; snippet: stri
 
 export function getTopIssues(limit: number = 2): TrackedArticle[] {
     const articles = getTrackedArticles();
+
+    // Filter out articles older than 7 days
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const activeArticles = articles.filter(a => {
+        const lastClicked = new Date(a.lastClickedAt);
+        return lastClicked >= sevenDaysAgo;
+    });
+
+    // Save back if any articles were pruned
+    if (activeArticles.length < articles.length) {
+        fs.writeFileSync(TRACKING_FILE, JSON.stringify(activeArticles, null, 2));
+    }
+
     // Sort by clicks descending
-    return articles
+    return activeArticles
         .sort((a, b) => b.clicks - a.clicks)
         .slice(0, limit);
 }
