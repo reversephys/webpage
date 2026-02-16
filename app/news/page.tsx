@@ -214,7 +214,7 @@ export default function NewsPage() {
         <main className="min-h-screen bg-background pt-32 pb-10 px-6 font-serif">
             <div className="max-w-6xl mx-auto">
                 <header className="mb-8 flex items-center justify-between">
-                    <h1 className="text-5xl md:text-7xl font-eczar tracking-tight">News</h1>
+                    <h1 className="text-3xl md:text-5xl font-eczar tracking-tight">News</h1>
                     <button
                         onClick={handleRefreshAll}
                         className="text-xs font-sans uppercase tracking-widest border border-gray-300 dark:border-gray-600 px-4 py-2 hover:bg-foreground hover:text-background transition-colors"
