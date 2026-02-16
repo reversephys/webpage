@@ -19,5 +19,12 @@
     "snippet": "Version 9.2 of the\nVim text editor has been released.  \"Vim 9.2 brings significant\nenhancements to the Vim9 scripting language, improved diff mode,\ncomprehensive completion features, and platform-specific improvements\nincluding experimental Wayland support.\"  Also included is a new\ninteractive tutor mode.",
     "clicks": 1,
     "lastClickedAt": "2026-02-16T03:17:01.962Z"
+  },
+  {
+    "link": "https://hackaday.com/2026/02/15/can-a-scan-tool-kill-a-car/",
+    "title": "Can a Scan Tool Kill a Car?",
+    "snippet": "It’s no real secret that modern-day cars are basically a collection of computers on wheels, which also means that we get all the joys of debugging complex computer systems and …read more",
+    "clicks": 1,
+    "lastClickedAt": "2026-02-16T04:01:46.424Z"
   }
 ]

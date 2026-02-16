@@ -31,7 +31,51 @@ export default function NewsPage() {
     const [addingFeed, setAddingFeed] = useState(false);
     const [initialLoading, setInitialLoading] = useState(true);
 
-    const refreshFeed = async (url: string) => {
+    // Cache duration: 24 hours in milliseconds
+    const CACHE_DURATION = 24 * 60 * 60 * 1000;
+
+    const getFeedFromCache = (url: string): FeedData | null => {
+        try {
+            const cached = localStorage.getItem(`news_cache_${url}`);
+            if (!cached) return null;
+
+            const parsed = JSON.parse(cached);
+            const now = Date.now();
+
+            if (now - parsed.timestamp < CACHE_DURATION) {
+                return parsed.data;
+            }
+        } catch (e) {
+            console.error("Cache read error", e);
+        }
+        return null;
+    };
+
+    const saveFeedToCache = (url: string, data: FeedData) => {
+        try {
+            const cacheItem = {
+                timestamp: Date.now(),
+                data
+            };
+            localStorage.setItem(`news_cache_${url}`, JSON.stringify(cacheItem));
+        } catch (e) {
+            console.error("Cache write error", e);
+        }
+    };
+
+    const refreshFeed = async (url: string, force = false) => {
+        // Try cache first unless forced
+        if (!force) {
+            const cachedData = getFeedFromCache(url);
+            if (cachedData) {
+                setFeedData(prev => ({
+                    ...prev,
+                    [url]: cachedData
+                }));
+                return;
+            }
+        }
+
         setFeedData(prev => ({
             ...prev,
             [url]: { ...prev[url], loading: true, title: prev[url]?.title || url, articles: prev[url]?.articles || [] }
@@ -43,10 +87,13 @@ export default function NewsPage() {
 
             // Get title from first article or fallback to URL
             const title = articles.length > 0 ? articles[0].source : url;
+            const newData = { title, articles, loading: false };
+
+            saveFeedToCache(url, newData);
 
             setFeedData(prev => ({
                 ...prev,
-                [url]: { title, articles, loading: false }
+                [url]: newData
             }));
         } catch (error) {
             console.error(`Failed to load feed: ${url}`, error);
@@ -55,6 +102,10 @@ export default function NewsPage() {
                 [url]: { ...prev[url], loading: false, error: true }
             }));
         }
+    };
+
+    const handleRefreshAll = () => {
+        feeds.forEach(url => refreshFeed(url, true));
     };
 
     const fetchFeeds = async () => {
@@ -162,8 +213,14 @@ export default function NewsPage() {
     return (
         <main className="min-h-screen bg-background pt-32 pb-10 px-6 font-serif">
             <div className="max-w-6xl mx-auto">
-                <header className="mb-8 flex items-center gap-4">
+                <header className="mb-8 flex items-center justify-between">
                     <h1 className="text-5xl md:text-7xl font-eczar tracking-tight">News</h1>
+                    <button
+                        onClick={handleRefreshAll}
+                        className="text-xs font-sans uppercase tracking-widest border border-gray-300 dark:border-gray-600 px-4 py-2 hover:bg-foreground hover:text-background transition-colors"
+                    >
+                        Refresh All
+                    </button>
                 </header>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
