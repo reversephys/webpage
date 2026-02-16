@@ -38,7 +38,7 @@ export default function SkillsPage() {
         : skills;
 
     return (
-        <main className="min-h-screen bg-background pt-32 pb-20 px-6 font-serif">
+        <main className="min-h-screen bg-background pt-32 pb-10 px-6 font-serif">
             <div className="max-w-4xl mx-auto">
                 <div className="flex items-end justify-between mb-8">
                     <h1 className="text-5xl md:text-7xl font-eczar tracking-tight">Skills.md / Prompt </h1>
@@ -51,7 +51,7 @@ export default function SkillsPage() {
                 </div>
 
                 {/* Search bar */}
-                <div className="flex gap-2 mb-16">
+                <div className="flex gap-2 mb-8">
                     <input
                         type="text"
                         value={query}
@@ -64,12 +64,12 @@ export default function SkillsPage() {
                 {loading ? (
                     <p className="text-gray-500 text-center py-20 text-lg">Loading skills...</p>
                 ) : (
-                    <div className="grid gap-4">
+                    <div className="grid gap-3">
                         {filtered.map((skill) => (
                             <Link
                                 key={skill.title}
                                 href={`/skills/${encodeURIComponent(skill.title)}`}
-                                className="block border border-gray-200 dark:border-gray-800 p-6 hover:border-gray-400 dark:hover:border-gray-600 transition-colors group bg-white dark:bg-black/20"
+                                className="block border border-gray-200 dark:border-gray-800 p-4 hover:border-gray-400 dark:hover:border-gray-600 transition-colors group bg-white dark:bg-black/20"
                             >
                                 <div className="flex justify-between items-center">
                                     <h2 className="text-xl font-bold font-serif group-hover:underline decoration-1 underline-offset-4">{skill.title}</h2>

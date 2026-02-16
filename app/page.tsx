@@ -45,12 +45,12 @@ export default function Home() {
 
 
       {/* Design System Grid / Content Section */}
-      <section className="max-w-7xl mx-auto px-6 py-24">
+      <section className="max-w-7xl mx-auto px-6 py-12">
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-16 lg:gap-24 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16 items-start">
 
           {/* Left Column: Intro */}
-          <div className="space-y-8 sticky top-24">
+          <div className="space-y-6 md:sticky md:top-24">
             <h2 className="text-5xl md:text-6xl font-serif font-bold leading-tight">
               Unlocking the <br /> <span className="italic">Unknown.</span>
             </h2>
@@ -64,13 +64,13 @@ export default function Home() {
           </div>
 
           {/* Right Column: Latest Blog Posts */}
-          <div className="space-y-16">
+          <div className="space-y-10">
 
             {/* Hot Issues Section */}
             <HotIssues issues={topIssues} />
 
             {/* Internal Blog Section Header */}
-            <div className="border-b border-gray-200 dark:border-gray-800 pb-4 mb-10 flex items-center justify-between">
+            <div className="border-b border-gray-200 dark:border-gray-800 pb-4 mb-6 flex items-center justify-between">
               <span className="block text-sm font-bold uppercase tracking-widest text-foreground flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-foreground" />
                 Laboratory Logs
@@ -82,11 +82,11 @@ export default function Home() {
 
             {latestPosts.map((post, index) => (
               <Link href={`/blog/${post.slug}`} key={post.slug}>
-                <div className={`group cursor-pointer ${index > 0 ? 'border-t border-gray-200 dark:border-gray-800 pt-8 mt-16' : ''}`}>
+                <div className={`group cursor-pointer ${index > 0 ? 'pt-6 mt-6' : ''}`}>
                   <span className="block text-sm font-bold uppercase tracking-widest text-gray-400 mb-2">
                     {post.tag}
                   </span>
-                  <h3 className="text-3xl font-serif font-bold mb-4 group-hover:underline decoration-1 underline-offset-4">
+                  <h3 className="text-2xl font-serif font-bold mb-2 group-hover:underline decoration-1 underline-offset-4">
                     {post.title}
                   </h3>
                   <div className="flex gap-6 items-stretch">

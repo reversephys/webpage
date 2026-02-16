@@ -160,15 +160,15 @@ export default function NewsPage() {
     };
 
     return (
-        <main className="min-h-screen bg-background pt-32 pb-20 px-6 font-serif">
+        <main className="min-h-screen bg-background pt-32 pb-10 px-6 font-serif">
             <div className="max-w-6xl mx-auto">
-                <header className="mb-16 flex items-center gap-4">
+                <header className="mb-8 flex items-center gap-4">
                     <h1 className="text-5xl md:text-7xl font-eczar tracking-tight">News</h1>
                 </header>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {/* Left Column: Articles Grouped by Feed URL */}
-                    <div className="md:col-span-2 space-y-6">
+                    <div className="md:col-span-2 space-y-4">
                         {initialLoading && feeds.length === 0 ? (
                             <p className="text-gray-500 text-lg">Loading feeds...</p>
                         ) : feeds.length === 0 ? (
@@ -186,7 +186,7 @@ export default function NewsPage() {
                                     <section key={url} className="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden transition-all duration-200">
                                         <button
                                             onClick={() => toggleSource(url)}
-                                            className="w-full flex items-center justify-between p-6 bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                                            className="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                                         >
                                             <div className="flex items-center gap-3 overflow-hidden">
                                                 {isExpanded ? <ChevronDown className="w-5 h-5 flex-shrink-0" /> : <ChevronRight className="w-5 h-5 flex-shrink-0" />}
@@ -222,11 +222,11 @@ export default function NewsPage() {
                                                     </div>
                                                 ) : (
                                                     data.articles.map((article, idx) => (
-                                                        <article key={idx} className="p-6 hover:bg-gray-50 dark:hover:bg-gray-900/30 transition-colors">
-                                                            <div className="text-xs font-sans uppercase tracking-widest text-gray-400 mb-2">
+                                                        <article key={idx} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-900/30 transition-colors">
+                                                            <div className="text-xs font-sans uppercase tracking-widest text-gray-400 mb-1">
                                                                 <time>{new Date(article.isoDate || article.pubDate).toLocaleDateString()}</time>
                                                             </div>
-                                                            <h3 className="text-lg font-bold mb-2">
+                                                            <h3 className="text-lg font-bold mb-1">
                                                                 <Link
                                                                     href={article.link}
                                                                     target="_blank"
@@ -237,7 +237,7 @@ export default function NewsPage() {
                                                                     {article.title}
                                                                 </Link>
                                                             </h3>
-                                                            <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-3 line-clamp-2">
+                                                            <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-2 line-clamp-2">
                                                                 {article.snippet}
                                                             </p>
                                                             <Link
