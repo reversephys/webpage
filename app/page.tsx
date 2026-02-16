@@ -1,10 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import HotIssues from "@/components/HotIssues";
 import { getLatestPosts } from "@/lib/blog";
+import { getTopIssues } from "@/lib/news-tracking";
+
+export const dynamic = 'force-dynamic'; // Ensure hot issues are fresh
 
 export default function Home() {
   const latestPosts = getLatestPosts(2);
+  const topIssues = getTopIssues(2);
 
   return (
     <main className="min-h-screen font-sans bg-background text-foreground">
@@ -61,9 +66,23 @@ export default function Home() {
           {/* Right Column: Latest Blog Posts */}
           <div className="space-y-16">
 
+            {/* Hot Issues Section */}
+            <HotIssues issues={topIssues} />
+
+            {/* Internal Blog Section Header */}
+            <div className="border-b border-gray-200 dark:border-gray-800 pb-4 mb-10 flex items-center justify-between">
+              <span className="block text-sm font-bold uppercase tracking-widest text-foreground flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-foreground" />
+                Laboratory Logs
+              </span>
+              <span className="text-xs text-gray-400 uppercase tracking-widest">
+                Internal Research
+              </span>
+            </div>
+
             {latestPosts.map((post, index) => (
               <Link href={`/blog/${post.slug}`} key={post.slug}>
-                <div className={`border-t border-gray-200 dark:border-gray-800 pt-8 group cursor-pointer ${index > 0 ? 'mt-16' : ''}`}>
+                <div className={`group cursor-pointer ${index > 0 ? 'border-t border-gray-200 dark:border-gray-800 pt-8 mt-16' : ''}`}>
                   <span className="block text-sm font-bold uppercase tracking-widest text-gray-400 mb-2">
                     {post.tag}
                   </span>
@@ -98,7 +117,7 @@ export default function Home() {
 
             {latestPosts.length === 0 && (
               <>
-                <div className="border-t border-gray-200 dark:border-gray-800 pt-8 group cursor-pointer">
+                <div className="group cursor-pointer">
                   <span className="block text-sm font-bold uppercase tracking-widest text-gray-400 mb-2">Blog</span>
                   <h3 className="text-3xl font-serif font-bold mb-4">No posts yet</h3>
                   <p className="text-gray-600 dark:text-gray-400 mb-4">
