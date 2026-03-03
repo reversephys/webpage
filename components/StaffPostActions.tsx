@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Edit, Trash2 } from "lucide-react";
+import { pb } from "@/lib/pocketbase";
 
 export default function StaffPostActions({ slug }: { slug: string }) {
     const router = useRouter();
@@ -15,7 +16,10 @@ export default function StaffPostActions({ slug }: { slug: string }) {
         try {
             await fetch("/api/staff/delete", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${pb.authStore.token}`,
+                },
                 body: JSON.stringify({ slug }),
             });
             router.push("/staff");

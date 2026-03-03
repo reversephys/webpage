@@ -3,14 +3,26 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { StaffPost } from "@/lib/staff";
+import { useAuth } from "@/components/AuthContext";
 
 export default function StaffPage() {
+    const router = useRouter();
+    const { user, loading: authLoading } = useAuth();
     const [posts, setPosts] = useState<StaffPost[]>([]);
     const [query, setQuery] = useState("");
     const [loading, setLoading] = useState(true);
 
+    // Redirect to login if not authenticated
     useEffect(() => {
+        if (!authLoading && !user) {
+            router.push("/login");
+        }
+    }, [user, authLoading, router]);
+
+    useEffect(() => {
+        if (!user) return;
         (async () => {
             try {
                 const res = await fetch("/api/staff/posts");
@@ -22,7 +34,17 @@ export default function StaffPage() {
                 setLoading(false);
             }
         })();
-    }, []);
+    }, [user]);
+
+    if (authLoading) {
+        return (
+            <main className="min-h-screen bg-background pt-32 pb-20 px-6 font-serif">
+                <div className="max-w-4xl mx-auto text-center text-gray-400">Loading...</div>
+            </main>
+        );
+    }
+
+    if (!user) return null;
 
     const filtered = query.trim()
         ? posts.filter((post) => {

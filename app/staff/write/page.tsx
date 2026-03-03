@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+import { pb } from "@/lib/pocketbase";
+import { useAuth } from "@/components/AuthContext";
 
 type Tab = "write" | "preview";
 
@@ -33,6 +35,7 @@ function StaffWriteEditor() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const editSlug = searchParams.get("edit");
+    const { user, loading: authLoading } = useAuth();
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [tab, setTab] = useState<Tab>("write");
@@ -47,9 +50,16 @@ function StaffWriteEditor() {
     const [loading, setLoading] = useState(!!editSlug);
     const [error, setError] = useState<string | null>(null);
 
+    // Redirect to login if not authenticated
+    useEffect(() => {
+        if (!authLoading && !user) {
+            router.push("/login");
+        }
+    }, [user, authLoading, router]);
+
     // Load existing post data in edit mode
     useEffect(() => {
-        if (!editSlug) return;
+        if (!user || !editSlug) return;
 
         (async () => {
             try {
@@ -70,7 +80,7 @@ function StaffWriteEditor() {
                 setLoading(false);
             }
         })();
-    }, [editSlug]);
+    }, [editSlug, user]);
 
     const insertToolbar = useCallback((action: typeof TOOLBAR_ACTIONS[0]) => {
         const textarea = textareaRef.current;
@@ -96,6 +106,16 @@ function StaffWriteEditor() {
             textarea.setSelectionRange(cursorPos, cursorEnd);
         }, 0);
     }, [content]);
+
+    if (authLoading) {
+        return (
+            <main className="min-h-screen bg-background pt-32 pb-20 px-6 font-serif">
+                <div className="max-w-4xl mx-auto text-center text-gray-400">Loading...</div>
+            </main>
+        );
+    }
+
+    if (!user) return null;
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
@@ -164,6 +184,9 @@ function StaffWriteEditor() {
             try {
                 const res = await fetch("/api/staff/edit", {
                     method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${pb.authStore.token}`,
+                    },
                     body: formData,
                 });
                 const data = await res.json();
@@ -184,6 +207,9 @@ function StaffWriteEditor() {
             try {
                 const res = await fetch("/api/staff/publish", {
                     method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${pb.authStore.token}`,
+                    },
                     body: formData,
                 });
                 const data = await res.json();

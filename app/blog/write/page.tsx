@@ -57,20 +57,9 @@ function BlogWriteEditor() {
         }
     }, [user, authLoading, router]);
 
-    if (authLoading) {
-        return (
-            <main className="min-h-screen bg-background pt-32 pb-20 px-6 font-serif">
-                <div className="max-w-4xl mx-auto text-center text-gray-400">Loading...</div>
-            </main>
-        );
-    }
-
-    if (!user) return null;
-
-
     // Load existing post data in edit mode
     useEffect(() => {
-        if (!editSlug) return;
+        if (!user || !editSlug) return;
 
         (async () => {
             try {
@@ -91,7 +80,7 @@ function BlogWriteEditor() {
                 setLoading(false);
             }
         })();
-    }, [editSlug]);
+    }, [editSlug, user]);
 
     const insertToolbar = useCallback((action: typeof TOOLBAR_ACTIONS[0]) => {
         const textarea = textareaRef.current;
@@ -117,6 +106,16 @@ function BlogWriteEditor() {
             textarea.setSelectionRange(cursorPos, cursorEnd);
         }, 0);
     }, [content]);
+
+    if (authLoading) {
+        return (
+            <main className="min-h-screen bg-background pt-32 pb-20 px-6 font-serif">
+                <div className="max-w-4xl mx-auto text-center text-gray-400">Loading...</div>
+            </main>
+        );
+    }
+
+    if (!user) return null;
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);

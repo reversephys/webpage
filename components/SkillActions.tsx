@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { pb } from "@/lib/pocketbase";
 
 interface SkillActionsProps {
     title: string;
@@ -19,7 +20,10 @@ export function SkillActions({ title }: SkillActionsProps) {
         try {
             const res = await fetch("/api/skills/delete", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${pb.authStore.token}`,
+                },
                 body: JSON.stringify({ title }),
             });
 

@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
+import { pb } from "@/lib/pocketbase";
 
 interface PostActionsProps {
     slug: string;
@@ -19,7 +20,10 @@ export function PostActions({ slug }: PostActionsProps) {
         try {
             const res = await fetch("/api/blog/delete", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${pb.authStore.token}`,
+                },
                 body: JSON.stringify({ slug }),
             });
 

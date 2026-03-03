@@ -46,27 +46,9 @@ function SkillsWriteEditor() {
         }
     }, [user, authLoading, router]);
 
-    if (authLoading) {
-        return (
-            <main className="min-h-screen bg-background pt-32 pb-20 px-6 font-serif">
-                <div className="max-w-4xl mx-auto text-center text-gray-400">Loading...</div>
-            </main>
-        );
-    }
-
-    if (!user) return null;
-
     // Load existing skill data
     useEffect(() => {
-        if (!editTitle) return;
-
-        // Since we don't have a single-skill API, we'll just fetch list and find it
-        // Or better, creating a dedicated get API would be cleaner but overkill for now
-        // Let's implement a client-side fetch from list API for simplicity or just add a simple GET
-        // Actually, listing ALL skills just to find one is inefficient if list grows.
-        // Let's add a quick client-side fetch helper in the component or rely on a new api route
-        // For now, let's just make a dedicated GET /api/skills/get?title=... route or similar?
-        // Or just use the list API since skills.sh implies a curated list, likely not thousands.
+        if (!user || !editTitle) return;
 
         (async () => {
             try {
@@ -83,7 +65,7 @@ function SkillsWriteEditor() {
                 setError("Failed to load skill.");
             }
         })();
-    }, [editTitle]);
+    }, [editTitle, user]);
 
     const insertToolbar = useCallback((action: typeof TOOLBAR_ACTIONS[0]) => {
         const textarea = textareaRef.current;
@@ -109,6 +91,16 @@ function SkillsWriteEditor() {
             textarea.setSelectionRange(cursorPos, cursorEnd);
         }, 0);
     }, [content]);
+
+    if (authLoading) {
+        return (
+            <main className="min-h-screen bg-background pt-32 pb-20 px-6 font-serif">
+                <div className="max-w-4xl mx-auto text-center text-gray-400">Loading...</div>
+            </main>
+        );
+    }
+
+    if (!user) return null;
 
     const handlePublish = async () => {
         if (!title.trim()) { setError("Title is required."); return; }
