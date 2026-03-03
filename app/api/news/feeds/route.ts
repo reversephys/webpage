@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getFeeds, addFeed, removeFeed } from "@/lib/news";
+import { verifyAuth, unauthorizedResponse } from "@/lib/auth-server";
 
 export async function GET() {
     const feeds = getFeeds();
@@ -7,6 +8,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+    const user = await verifyAuth(request);
+    if (!user) return unauthorizedResponse();
+
     try {
         const { url } = await request.json();
         if (!url) return NextResponse.json({ error: "URL is required" }, { status: 400 });
@@ -21,6 +25,9 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
+    const user = await verifyAuth(request);
+    if (!user) return unauthorizedResponse();
+
     try {
         const { url } = await request.json();
         if (!url) return NextResponse.json({ error: "URL is required" }, { status: 400 });

@@ -2,8 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import { getPostFolderName, CONTENTS_DIR } from "@/lib/blog";
+import { verifyAuth, unauthorizedResponse } from "@/lib/auth-server";
 
 export async function POST(request: NextRequest) {
+    const user = await verifyAuth(request);
+    if (!user) return unauthorizedResponse();
+
     try {
         const { slug } = await request.json();
 

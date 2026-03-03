@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import { SKILLS_DIR } from "@/lib/skills";
+import { verifyAuth, unauthorizedResponse } from "@/lib/auth-server";
 
 function containsDangerousContent(content: string): boolean {
     const lowerContent = content.toLowerCase();
@@ -11,6 +12,8 @@ function containsDangerousContent(content: string): boolean {
 }
 
 export async function POST(request: NextRequest) {
+    const user = await verifyAuth(request);
+    if (!user) return unauthorizedResponse();
     try {
         const { title, content } = await request.json();
 

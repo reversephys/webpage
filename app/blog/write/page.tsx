@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+import { pb } from "@/lib/pocketbase";
+import { useAuth } from "@/components/AuthContext";
 
 type Tab = "write" | "preview";
 
@@ -33,6 +35,7 @@ function BlogWriteEditor() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const editSlug = searchParams.get("edit");
+    const { user, loading: authLoading } = useAuth();
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [tab, setTab] = useState<Tab>("write");
@@ -46,6 +49,24 @@ function BlogWriteEditor() {
     const [publishing, setPublishing] = useState(false);
     const [loading, setLoading] = useState(!!editSlug);
     const [error, setError] = useState<string | null>(null);
+
+    // Redirect to login if not authenticated
+    useEffect(() => {
+        if (!authLoading && !user) {
+            router.push("/login");
+        }
+    }, [user, authLoading, router]);
+
+    if (authLoading) {
+        return (
+            <main className="min-h-screen bg-background pt-32 pb-20 px-6 font-serif">
+                <div className="max-w-4xl mx-auto text-center text-gray-400">Loading...</div>
+            </main>
+        );
+    }
+
+    if (!user) return null;
+
 
     // Load existing post data in edit mode
     useEffect(() => {
@@ -164,6 +185,9 @@ function BlogWriteEditor() {
             try {
                 const res = await fetch("/api/blog/edit", {
                     method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${pb.authStore.token}`,
+                    },
                     body: formData,
                 });
                 const data = await res.json();
@@ -184,6 +208,9 @@ function BlogWriteEditor() {
             try {
                 const res = await fetch("/api/blog/publish", {
                     method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${pb.authStore.token}`,
+                    },
                     body: formData,
                 });
                 const data = await res.json();

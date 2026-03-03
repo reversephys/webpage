@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
+import { pb } from "@/lib/pocketbase";
+import { useAuth } from "@/components/AuthContext";
 
 type Tab = "write" | "preview";
 
@@ -28,6 +30,7 @@ function SkillsWriteEditor() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const editTitle = searchParams.get("edit");
+    const { user, loading: authLoading } = useAuth();
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [tab, setTab] = useState<Tab>("write");
@@ -35,6 +38,23 @@ function SkillsWriteEditor() {
     const [content, setContent] = useState("");
     const [publishing, setPublishing] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    // Redirect to login if not authenticated
+    useEffect(() => {
+        if (!authLoading && !user) {
+            router.push("/login");
+        }
+    }, [user, authLoading, router]);
+
+    if (authLoading) {
+        return (
+            <main className="min-h-screen bg-background pt-32 pb-20 px-6 font-serif">
+                <div className="max-w-4xl mx-auto text-center text-gray-400">Loading...</div>
+            </main>
+        );
+    }
+
+    if (!user) return null;
 
     // Load existing skill data
     useEffect(() => {
@@ -105,7 +125,10 @@ function SkillsWriteEditor() {
 
             const res = await fetch(url, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${pb.authStore.token}`,
+                },
                 body: JSON.stringify(body),
             });
 

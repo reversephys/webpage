@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 import { getPostFolderName, CONTENTS_DIR } from "@/lib/blog";
+import { verifyAuth, unauthorizedResponse } from "@/lib/auth-server";
 
 function containsDangerousContent(content: string): boolean {
     const lowerContent = content.toLowerCase();
@@ -16,6 +17,9 @@ function generateUUID(): string {
 }
 
 export async function POST(request: NextRequest) {
+    const user = await verifyAuth(request);
+    if (!user) return unauthorizedResponse();
+
     try {
         const formData = await request.formData();
 

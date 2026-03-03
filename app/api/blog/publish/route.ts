@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
+import { verifyAuth, unauthorizedResponse } from "@/lib/auth-server";
 
 const CONTENTS_DIR = path.join(process.cwd(), "Contents", "BLOG");
 
@@ -50,6 +51,8 @@ function sanitizeFolderName(name: string): string {
 }
 
 export async function POST(request: NextRequest) {
+    const user = await verifyAuth(request);
+    if (!user) return unauthorizedResponse();
     try {
         const formData = await request.formData();
 

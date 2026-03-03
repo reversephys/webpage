@@ -1,5 +1,7 @@
 "use client";
 
+import { pb } from "@/lib/pocketbase";
+
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Trash2, Plus, ExternalLink, Rss, ChevronDown, ChevronRight, Loader2 } from "lucide-react";
@@ -142,7 +144,10 @@ export default function NewsPage() {
         try {
             const res = await fetch("/api/news/feeds", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${pb.authStore.token}`,
+                },
                 body: JSON.stringify({ url: newFeedUrl }),
             });
             if (res.ok) {
@@ -171,7 +176,10 @@ export default function NewsPage() {
         try {
             await fetch("/api/news/feeds", {
                 method: "DELETE",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${pb.authStore.token}`,
+                },
                 body: JSON.stringify({ url }),
             });
             // Update state safely
