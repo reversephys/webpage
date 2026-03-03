@@ -2,13 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils"; // We might need to create this util
-import { Menu, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Menu, X, User } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/components/AuthContext";
 
 export function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
     const pathname = usePathname();
+    const { user, loading } = useAuth();
 
     const navItems = [
         { name: "Home", href: "/" },
@@ -42,6 +44,31 @@ export function Navbar() {
                             {item.name}
                         </Link>
                     ))}
+
+                    {/* User ID / Login */}
+                    <div className="border-l border-gray-300 dark:border-gray-700 pl-6 ml-2">
+                        {loading ? (
+                            <span className="text-xs text-gray-400">...</span>
+                        ) : user ? (
+                            <Link
+                                href="/profile"
+                                className={cn(
+                                    "inline-flex items-center gap-2 text-sm font-medium tracking-widest uppercase hover:text-gray-600 transition-colors",
+                                    pathname === "/profile" ? "border-b-2 border-black dark:border-white" : ""
+                                )}
+                            >
+                                <User className="w-4 h-4" />
+                                {user.username}
+                            </Link>
+                        ) : (
+                            <Link
+                                href="/login"
+                                className="text-sm font-medium tracking-widest uppercase hover:text-gray-600 transition-colors"
+                            >
+                                Login
+                            </Link>
+                        )}
+                    </div>
                 </div>
 
                 {/* Mobile Menu Toggle */}
@@ -66,8 +93,29 @@ export function Navbar() {
                             {item.name}
                         </Link>
                     ))}
+                    <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-2">
+                        {user ? (
+                            <Link
+                                href="/profile"
+                                onClick={() => setIsOpen(false)}
+                                className="inline-flex items-center gap-2 text-lg font-serif tracking-wide hover:ml-2 transition-all"
+                            >
+                                <User className="w-4 h-4" />
+                                {user.username}
+                            </Link>
+                        ) : (
+                            <Link
+                                href="/login"
+                                onClick={() => setIsOpen(false)}
+                                className="text-lg font-serif tracking-wide hover:ml-2 transition-all"
+                            >
+                                Login
+                            </Link>
+                        )}
+                    </div>
                 </div>
             )}
         </nav>
     );
 }
+

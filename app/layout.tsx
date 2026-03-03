@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Inter, Eczar } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
+import { ClientProviders } from "@/components/ClientProviders";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -33,9 +34,12 @@ export default function RootLayout({
       <body
         className={`${playfair.variable} ${inter.variable} ${eczar.variable} antialiased selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black`}
       >
-        <Navbar />
-        {children}
+        <ClientProviders>
+          <Navbar />
+          {children}
+        </ClientProviders>
       </body>
     </html>
   );
 }
+
