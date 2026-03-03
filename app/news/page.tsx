@@ -5,6 +5,7 @@ import { pb } from "@/lib/pocketbase";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Trash2, Plus, ExternalLink, Rss, ChevronDown, ChevronRight, Loader2 } from "lucide-react";
+import { useAuth } from "@/components/AuthContext";
 
 interface Article {
     title: string;
@@ -24,6 +25,7 @@ interface FeedData {
 }
 
 export default function NewsPage() {
+    const { user } = useAuth();
     const [feeds, setFeeds] = useState<string[]>([]);
     const [feedData, setFeedData] = useState<Record<string, FeedData>>({});
     const [expandedSources, setExpandedSources] = useState<Set<string>>(new Set());
@@ -319,51 +321,53 @@ export default function NewsPage() {
                         )}
                     </div>
 
-                    {/* Right Column: Feed Manager */}
-                    <div className="space-y-8">
-                        <div className="sticky top-32">
-                            <div className="bg-gray-50 dark:bg-gray-900/50 p-6 border border-gray-200 dark:border-gray-800 rounded-lg">
-                                <h3 className="text-sm font-sans uppercase tracking-widest text-gray-500 mb-6 font-bold">Manage Feeds</h3>
+                    {/* Right Column: Feed Manager (logged-in only) */}
+                    {user && (
+                        <div className="space-y-8">
+                            <div className="sticky top-32">
+                                <div className="bg-gray-50 dark:bg-gray-900/50 p-6 border border-gray-200 dark:border-gray-800 rounded-lg">
+                                    <h3 className="text-sm font-sans uppercase tracking-widest text-gray-500 mb-6 font-bold">Manage Feeds</h3>
 
-                                <div className="flex gap-2 mb-6">
-                                    <input
-                                        type="url"
-                                        value={newFeedUrl}
-                                        onChange={(e) => setNewFeedUrl(e.target.value)}
-                                        placeholder="https://example.com/rss"
-                                        className="flex-1 px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:border-blue-500 rounded"
-                                    />
-                                    <button
-                                        onClick={handleAddFeed}
-                                        disabled={addingFeed || !newFeedUrl}
-                                        className="bg-foreground text-background px-3 py-2 rounded hover:opacity-90 disabled:opacity-50"
-                                    >
-                                        <Plus className="w-4 h-4" />
-                                    </button>
-                                </div>
+                                    <div className="flex gap-2 mb-6">
+                                        <input
+                                            type="url"
+                                            value={newFeedUrl}
+                                            onChange={(e) => setNewFeedUrl(e.target.value)}
+                                            placeholder="https://example.com/rss"
+                                            className="flex-1 px-3 py-2 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:border-blue-500 rounded"
+                                        />
+                                        <button
+                                            onClick={handleAddFeed}
+                                            disabled={addingFeed || !newFeedUrl}
+                                            className="bg-foreground text-background px-3 py-2 rounded hover:opacity-90 disabled:opacity-50"
+                                        >
+                                            <Plus className="w-4 h-4" />
+                                        </button>
+                                    </div>
 
-                                <div className="space-y-3">
-                                    {feeds.length === 0 ? (
-                                        <p className="text-xs text-gray-400 italic">No feeds registered.</p>
-                                    ) : (
-                                        feeds.map((url) => (
-                                            <div key={url} className="flex justify-between items-center group">
-                                                <span className="text-xs text-gray-600 dark:text-gray-400 truncate max-w-[200px]" title={url}>
-                                                    {url}
-                                                </span>
-                                                <button
-                                                    onClick={() => handleRemoveFeed(url)}
-                                                    className="text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
-                                                >
-                                                    <Trash2 className="w-3 h-3" />
-                                                </button>
-                                            </div>
-                                        ))
-                                    )}
+                                    <div className="space-y-3">
+                                        {feeds.length === 0 ? (
+                                            <p className="text-xs text-gray-400 italic">No feeds registered.</p>
+                                        ) : (
+                                            feeds.map((url) => (
+                                                <div key={url} className="flex justify-between items-center group">
+                                                    <span className="text-xs text-gray-600 dark:text-gray-400 truncate max-w-[200px]" title={url}>
+                                                        {url}
+                                                    </span>
+                                                    <button
+                                                        onClick={() => handleRemoveFeed(url)}
+                                                        className="text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                                                    >
+                                                        <Trash2 className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
         </main>

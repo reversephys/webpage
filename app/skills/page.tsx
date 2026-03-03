@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/AuthContext";
 
 interface Skill {
     title: string;
@@ -9,11 +11,20 @@ interface Skill {
 }
 
 export default function SkillsPage() {
+    const router = useRouter();
+    const { user, loading: authLoading } = useAuth();
     const [skills, setSkills] = useState<Skill[]>([]);
     const [query, setQuery] = useState("");
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        if (!authLoading && !user) {
+            router.push("/login");
+        }
+    }, [user, authLoading, router]);
+
+    useEffect(() => {
+        if (!user) return;
         (async () => {
             try {
                 const res = await fetch("/api/skills/list");
@@ -25,7 +36,17 @@ export default function SkillsPage() {
                 setLoading(false);
             }
         })();
-    }, []);
+    }, [user]);
+
+    if (authLoading) {
+        return (
+            <main className="min-h-screen bg-background pt-32 pb-20 px-6 font-serif">
+                <div className="max-w-4xl mx-auto text-center text-gray-400">Loading...</div>
+            </main>
+        );
+    }
+
+    if (!user) return null;
 
     const filtered = query.trim()
         ? skills.filter((skill) => {
