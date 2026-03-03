@@ -43,18 +43,21 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
                     h4: ({ children }) => (
                         <h4 className="text-xl font-semibold font-serif tracking-tight mt-6 mb-2">{children}</h4>
                     ),
-                    h5: ({ children }) => (
-                        <h5 className="text-lg font-semibold font-serif tracking-tight mt-4 mb-2">{children}</h5>
-                    ),
                     h6: ({ children }) => (
                         <h6 className="text-base font-semibold font-serif tracking-tight mt-4 mb-2 text-gray-500">{children}</h6>
                     ),
-                    img: ({ src, alt }) => {
+                    p: ({ children }) => (
+                        <div className="mb-6 leading-relaxed text-gray-700 dark:text-gray-300">
+                            {children}
+                        </div>
+                    ),
+                    img: (props) => {
+                        const { src, alt } = props;
                         if (!src) return null;
                         return (
                             <span className="block my-8">
                                 <Image
-                                    src={src}
+                                    src={src as string}
                                     alt={alt || ""}
                                     width={800}
                                     height={450}
@@ -81,11 +84,9 @@ export function MarkdownRenderer({ content }: MarkdownRendererProps) {
                         );
                     },
                     table: ({ children }) => (
-                        <div className="overflow-x-auto my-6">
-                            <table className="min-w-full border-collapse border border-gray-300 dark:border-gray-600">
-                                {children}
-                            </table>
-                        </div>
+                        <table className="min-w-full border-collapse border border-gray-300 dark:border-gray-600 my-6">
+                            {children}
+                        </table>
                     ),
                 }}
             >
