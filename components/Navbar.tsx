@@ -14,7 +14,7 @@ export function Navbar() {
 
     const allNavItems = [
         { name: "Home", href: "/" },
-        { name: "News", href: "/news" },
+        { name: "Feed", href: "/feed" },
         { name: "Blog", href: "/blog" },
         { name: "Skills", href: "/skills", auth: true },
         { name: "Physical Lab", href: "/about" },

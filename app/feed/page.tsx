@@ -224,7 +224,7 @@ export default function NewsPage() {
         <main className="min-h-screen bg-background pt-32 pb-10 px-6 font-serif">
             <div className="max-w-6xl mx-auto">
                 <header className="mb-8 flex items-center justify-between">
-                    <h1 className="text-3xl md:text-5xl font-eczar tracking-tight">News</h1>
+                    <h1 className="text-3xl md:text-5xl font-eczar tracking-tight">Feed</h1>
                 </header>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
