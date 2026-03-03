@@ -12,14 +12,16 @@ export function Navbar() {
     const pathname = usePathname();
     const { user, loading } = useAuth();
 
-    const navItems = [
+    const allNavItems = [
         { name: "Home", href: "/" },
         { name: "News", href: "/news" },
         { name: "Blog", href: "/blog" },
-        { name: "Skills", href: "/skills" },
+        { name: "Skills", href: "/skills", auth: true },
         { name: "Physical Lab", href: "/about" },
-        { name: "Staff", href: "/staff" },
+        { name: "Staff", href: "/staff", auth: true },
     ];
+
+    const navItems = allNavItems.filter(item => !item.auth || user);
 
     return (
         <nav className="fixed top-0 left-0 w-full z-50 bg-background/90 backdrop-blur-md border-b border-gray-100 dark:border-gray-800 transition-all duration-300">
