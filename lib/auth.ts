@@ -4,24 +4,43 @@ export interface UserRecord {
     id: string;
     username: string;
     email?: string;
+    introduction?: string;
     created: string;
     updated: string;
 }
 
 export async function loginUser(username: string, password: string) {
-    const authData = await pb.collection('users').authWithPassword(username, password);
-    return authData;
+    const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+        throw new Error(data.error || 'Login failed.');
+    }
+
+    // Save token and record to local authStore
+    pb.authStore.save(data.token, data.record);
+    return data;
 }
 
 export async function registerUser(username: string, password: string, passwordConfirm: string) {
-    const record = await pb.collection('users').create({
-        username,
-        password,
-        passwordConfirm,
+    const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, passwordConfirm }),
     });
-    // Auto-login after registration
-    await pb.collection('users').authWithPassword(username, password);
-    return record;
+    const data = await res.json();
+
+    if (!res.ok) {
+        throw new Error(data.error || 'Registration failed.');
+    }
+
+    // Save token and record to local authStore
+    pb.authStore.save(data.token, data.record);
+    return data;
 }
 
 export function logoutUser() {
