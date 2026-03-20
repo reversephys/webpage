@@ -2,5 +2,8 @@
   "https://lwn.net/headlines/rss",
   "https://hackaday.com/blog/feed/",
   "https://projectzero.google/feed.xml",
-  "https://www.schneier.com/feed/atom/"
+  "https://www.schneier.com/feed/atom/",
+  "https://www.zerodayinitiative.com/blog/?format=rss",
+  "https://www.intigriti.com/blog/feed",
+  "https://starlabs.sg/index.xml"
 ]
