@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { pb } from "@/lib/pocketbase";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
-import { Pencil, X, Save } from "lucide-react";
+import { Pencil, X, Save, Key } from "lucide-react";
 
 type Tab = "write" | "preview";
 
@@ -48,6 +48,14 @@ export default function ProfilePage() {
     const [editIntro, setEditIntro] = useState("");
     const [saving, setSaving] = useState(false);
     const [saveMessage, setSaveMessage] = useState<string | null>(null);
+
+    // Password change state
+    const [isChangingPassword, setIsChangingPassword] = useState(false);
+    const [oldPassword, setOldPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [passwordConfirm, setPasswordConfirm] = useState("");
+    const [savingPassword, setSavingPassword] = useState(false);
+    const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     // Redirect if not authenticated
@@ -142,6 +150,55 @@ export default function ProfilePage() {
         setTab("write");
     };
 
+    const handlePasswordSave = async () => {
+        setSavingPassword(true);
+        setPasswordMessage(null);
+
+        if (newPassword !== passwordConfirm) {
+            setPasswordMessage("New password and confirm password do not match.");
+            setSavingPassword(false);
+            return;
+        }
+
+        try {
+            const res = await fetch("/api/profile/password", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${pb.authStore.token}`,
+                },
+                body: JSON.stringify({ oldPassword, newPassword, passwordConfirm }),
+            });
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                pb.authStore.save(data.token, data.record);
+                setPasswordMessage("Password changed successfully.");
+                setOldPassword("");
+                setNewPassword("");
+                setPasswordConfirm("");
+                setTimeout(() => {
+                    setPasswordMessage(null);
+                    setIsChangingPassword(false);
+                }, 2000);
+            } else {
+                setPasswordMessage(data.error || "Failed to change password.");
+            }
+        } catch {
+            setPasswordMessage("Network error. Please try again.");
+        } finally {
+            setSavingPassword(false);
+        }
+    };
+
+    const handleCancelPassword = () => {
+        setOldPassword("");
+        setNewPassword("");
+        setPasswordConfirm("");
+        setPasswordMessage(null);
+        setIsChangingPassword(false);
+    };
+
     if (loading || profileLoading) {
         return (
             <main className="min-h-screen bg-background pt-32 pb-20 px-6 font-serif">
@@ -212,8 +269,8 @@ export default function ProfilePage() {
                                         <button
                                             onClick={() => setTab("write")}
                                             className={`flex-1 py-3 text-sm font-sans uppercase tracking-widest text-center transition-colors ${tab === "write"
-                                                    ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
-                                                    : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                                ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
+                                                : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                                                 }`}
                                         >
                                             Write
@@ -221,8 +278,8 @@ export default function ProfilePage() {
                                         <button
                                             onClick={() => setTab("preview")}
                                             className={`flex-1 py-3 text-sm font-sans uppercase tracking-widest text-center transition-colors ${tab === "preview"
-                                                    ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
-                                                    : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                                ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
+                                                : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                                                 }`}
                                         >
                                             Preview
@@ -286,19 +343,89 @@ export default function ProfilePage() {
                     {saveMessage && (
                         <div
                             className={`px-4 py-2 text-sm font-sans rounded ${saveMessage.includes("success")
-                                    ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800"
-                                    : "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800"
+                                ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800"
+                                : "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800"
                                 }`}
                         >
                             {saveMessage}
                         </div>
                     )}
 
+                    {/* Password Change Mode */}
+                    {isChangingPassword && (
+                        <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-800">
+                            <h2 className="text-xl font-eczar mb-2 border-none">Change Password</h2>
+
+                            <div>
+                                <label className="block text-xs font-sans uppercase tracking-widest text-gray-500 mb-2">Current Password</label>
+                                <input
+                                    type="password"
+                                    value={oldPassword}
+                                    onChange={(e) => setOldPassword(e.target.value)}
+                                    className="w-full px-4 py-3 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded focus:outline-none focus:border-foreground transition-colors text-base"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-sans uppercase tracking-widest text-gray-500 mb-2">New Password</label>
+                                <input
+                                    type="password"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    className="w-full px-4 py-3 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded focus:outline-none focus:border-foreground transition-colors text-base"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-sans uppercase tracking-widest text-gray-500 mb-2">Confirm New Password</label>
+                                <input
+                                    type="password"
+                                    value={passwordConfirm}
+                                    onChange={(e) => setPasswordConfirm(e.target.value)}
+                                    className="w-full px-4 py-3 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded focus:outline-none focus:border-foreground transition-colors text-base"
+                                />
+                            </div>
+
+                            {passwordMessage && (
+                                <p className={`text-sm ${passwordMessage.includes("success") ? "text-green-500" : "text-red-500"}`}>
+                                    {passwordMessage}
+                                </p>
+                            )}
+
+                            <div className="flex items-center justify-end gap-3 pt-2">
+                                <button
+                                    onClick={handleCancelPassword}
+                                    className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-sans uppercase tracking-widest text-gray-500 hover:text-foreground border border-gray-200 dark:border-gray-700 rounded transition-colors"
+                                >
+                                    <X className="w-3.5 h-3.5" />
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handlePasswordSave}
+                                    disabled={savingPassword}
+                                    className="inline-flex items-center gap-1.5 px-6 py-2 bg-foreground text-background font-sans uppercase tracking-widest text-sm hover:opacity-90 disabled:opacity-50 transition-opacity rounded"
+                                >
+                                    <Save className="w-3.5 h-3.5" />
+                                    {savingPassword ? "Saving..." : "Save Password"}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Change Password button */}
+                    {!isEditing && !isChangingPassword && (
+                        <button
+                            onClick={() => setIsChangingPassword(true)}
+                            className="w-full mt-4 py-3 inline-flex items-center justify-center gap-2 border border-blue-500 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 font-sans uppercase tracking-widest text-sm transition-colors rounded"
+                        >
+                            <Key className="w-4 h-4" />
+                            Change Password
+                        </button>
+                    )}
+
                     {/* Edit Profile button (above Sign Out) */}
-                    {!isEditing && (
+                    {!isEditing && !isChangingPassword && (
                         <button
                             onClick={() => setIsEditing(true)}
-                            className="w-full mt-4 py-3 inline-flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-sans uppercase tracking-widest text-sm transition-colors rounded"
+                            className="w-full mt-2 py-3 inline-flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-sans uppercase tracking-widest text-sm transition-colors rounded"
                         >
                             <Pencil className="w-4 h-4" />
                             Edit Profile
@@ -306,15 +433,17 @@ export default function ProfilePage() {
                     )}
 
                     {/* Sign Out */}
-                    <button
-                        onClick={() => {
-                            logout();
-                            router.push("/");
-                        }}
-                        className="w-full mt-2 py-3 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white font-sans uppercase tracking-widest text-sm transition-colors rounded"
-                    >
-                        Sign Out
-                    </button>
+                    {!isEditing && !isChangingPassword && (
+                        <button
+                            onClick={() => {
+                                logout();
+                                router.push("/");
+                            }}
+                            className="w-full mt-2 py-3 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white font-sans uppercase tracking-widest text-sm transition-colors rounded"
+                        >
+                            Sign Out
+                        </button>
+                    )}
                 </div>
             </div>
         </main>
