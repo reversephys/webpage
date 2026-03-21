@@ -25,12 +25,15 @@ export async function POST(request: NextRequest) {
         const userId = authData.record.id;
 
         const body = await request.json();
-        const { introduction } = body;
+        const { introduction, name } = body;
 
         // Build update payload with only provided fields
         const updateData: Record<string, string> = {};
         if (typeof introduction === "string") {
             updateData.introduction = introduction;
+        }
+        if (typeof name === "string") {
+            updateData.name = name;
         }
 
         if (Object.keys(updateData).length === 0) {

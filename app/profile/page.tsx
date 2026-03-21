@@ -13,6 +13,7 @@ interface ProfileData {
     id: string;
     username: string;
     email: string;
+    name: string;
     introduction: string;
     created: string;
     updated: string;
@@ -42,10 +43,6 @@ export default function ProfilePage() {
     const [profile, setProfile] = useState<ProfileData | null>(null);
     const [profileLoading, setProfileLoading] = useState(true);
 
-    // Edit mode state
-    const [isEditing, setIsEditing] = useState(false);
-    const [tab, setTab] = useState<Tab>("write");
-    const [editIntro, setEditIntro] = useState("");
     const [saving, setSaving] = useState(false);
     const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
@@ -56,6 +53,15 @@ export default function ProfilePage() {
     const [passwordConfirm, setPasswordConfirm] = useState("");
     const [savingPassword, setSavingPassword] = useState(false);
     const [passwordMessage, setPasswordMessage] = useState<string | null>(null);
+
+    // Name edit state
+    const [isEditingName, setIsEditingName] = useState(false);
+    const [editName, setEditName] = useState("");
+
+    // Intro edit state
+    const [isEditingIntro, setIsEditingIntro] = useState(false);
+    const [tab, setTab] = useState<Tab>("write");
+    const [editIntro, setEditIntro] = useState("");
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     // Redirect if not authenticated
@@ -75,7 +81,6 @@ export default function ProfilePage() {
                 .then((data) => {
                     if (data.id) {
                         setProfile(data);
-                        setEditIntro(data.introduction || "");
                     }
                 })
                 .catch((err) => console.error("Failed to fetch profile:", err))
@@ -110,7 +115,38 @@ export default function ProfilePage() {
         [editIntro]
     );
 
-    const handleSave = async () => {
+    const handleSaveName = async () => {
+        setSaving(true);
+        setSaveMessage(null);
+
+        try {
+            const res = await fetch("/api/profile/update", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${pb.authStore.token}`,
+                },
+                body: JSON.stringify({ name: editName }),
+            });
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                pb.authStore.save(data.token, data.record);
+                setProfile((prev) => (prev ? { ...prev, name: editName } : prev));
+                setIsEditingName(false);
+                setSaveMessage("Name updated successfully!");
+                setTimeout(() => setSaveMessage(null), 3000);
+            } else {
+                setSaveMessage(data.error || "Failed to save name.");
+            }
+        } catch {
+            setSaveMessage("Network error. Please try again.");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleSaveIntro = async () => {
         setSaving(true);
         setSaveMessage(null);
 
@@ -126,28 +162,20 @@ export default function ProfilePage() {
             const data = await res.json();
 
             if (res.ok && data.success) {
-                // Update authStore with refreshed token/record
                 pb.authStore.save(data.token, data.record);
-                // Update local profile state
                 setProfile((prev) => (prev ? { ...prev, introduction: editIntro } : prev));
-                setSaveMessage("Saved successfully.");
-                setIsEditing(false);
+                setIsEditingIntro(false);
                 setTab("write");
+                setSaveMessage("Introduction updated successfully!");
                 setTimeout(() => setSaveMessage(null), 3000);
             } else {
-                setSaveMessage(data.error || "Failed to save.");
+                setSaveMessage(data.error || "Failed to save introduction.");
             }
         } catch {
             setSaveMessage("Network error. Please try again.");
         } finally {
             setSaving(false);
         }
-    };
-
-    const handleCancelEdit = () => {
-        setEditIntro(profile?.introduction || "");
-        setIsEditing(false);
-        setTab("write");
     };
 
     const handlePasswordSave = async () => {
@@ -202,7 +230,7 @@ export default function ProfilePage() {
     if (loading || profileLoading) {
         return (
             <main className="min-h-screen bg-background pt-32 pb-20 px-6 font-serif">
-                <div className="max-w-2xl mx-auto text-center text-gray-400">Loading...</div>
+                <div className="max-w-2xl mx-auto text-center text-gray-400">Loading profile...</div>
             </main>
         );
     }
@@ -214,41 +242,164 @@ export default function ProfilePage() {
             <div className="max-w-2xl mx-auto">
                 <h1 className="text-4xl md:text-6xl font-eczar mb-12 tracking-tight text-center">Profile</h1>
 
-                <div className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 rounded-lg p-8 space-y-6">
-                    {/* Basic Info */}
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-800">
-                            <span className="text-xs font-sans uppercase tracking-widest text-gray-500">Unique ID</span>
-                            <span className="font-mono text-sm text-gray-700 dark:text-gray-300">{profile?.id || user.id}</span>
-                        </div>
-                        <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-800">
-                            <span className="text-xs font-sans uppercase tracking-widest text-gray-500">Username</span>
-                            <span className="text-lg font-bold tracking-wider">{profile?.username || user.username}</span>
-                        </div>
-                        <div className="flex items-center justify-between py-3 border-b border-gray-200 dark:border-gray-800">
-                            <span className="text-xs font-sans uppercase tracking-widest text-gray-500">Created</span>
-                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                                {new Date(profile?.created || user.created).toLocaleDateString("en-US", {
-                                    year: "numeric",
-                                    month: "long",
-                                    day: "numeric",
-                                })}
-                            </span>
-                        </div>
+                <div className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 rounded-lg p-8 space-y-8">
+
+                    {/* 1. User Name */}
+                    <div className="flex items-center justify-between pb-4 border-b border-gray-200 dark:border-gray-800">
+                        <span className="text-xs font-sans uppercase tracking-widest text-gray-500">Username</span>
+                        <span className="text-lg font-bold tracking-wider">{profile?.username || user.username}</span>
                     </div>
 
-                    {/* Introduction Section */}
-                    <div className="pt-2">
-                        <div className="flex items-center justify-between mb-3">
-                            <span className="text-xs font-sans uppercase tracking-widest text-gray-500 font-bold">Introduction</span>
+                    {/* 2. Change Password */}
+                    <div>
+                        {!isChangingPassword ? (
+                            <button
+                                onClick={() => setIsChangingPassword(true)}
+                                className="w-full py-3 inline-flex items-center justify-center gap-2 border border-black dark:border-white text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black font-sans uppercase tracking-widest text-sm transition-colors rounded"
+                            >
+                                <Key className="w-4 h-4" />
+                                Change Password
+                            </button>
+                        ) : (
+                            <div className="space-y-4 p-6 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg">
+                                <h2 className="text-xl font-eczar mb-4">Change Password</h2>
+
+                                <div>
+                                    <label className="block text-xs font-sans uppercase tracking-widest text-gray-500 mb-2">Current Password</label>
+                                    <input
+                                        type="password"
+                                        value={oldPassword}
+                                        onChange={(e) => setOldPassword(e.target.value)}
+                                        className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded focus:outline-none focus:border-foreground transition-colors text-base"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-sans uppercase tracking-widest text-gray-500 mb-2">New Password</label>
+                                    <input
+                                        type="password"
+                                        value={newPassword}
+                                        onChange={(e) => setNewPassword(e.target.value)}
+                                        className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded focus:outline-none focus:border-foreground transition-colors text-base"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-sans uppercase tracking-widest text-gray-500 mb-2">Confirm New Password</label>
+                                    <input
+                                        type="password"
+                                        value={passwordConfirm}
+                                        onChange={(e) => setPasswordConfirm(e.target.value)}
+                                        className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded focus:outline-none focus:border-foreground transition-colors text-base"
+                                    />
+                                </div>
+
+                                {passwordMessage && (
+                                    <p className={`text-sm ${passwordMessage.includes("success") ? "text-green-500" : "text-red-500"}`}>
+                                        {passwordMessage}
+                                    </p>
+                                )}
+
+                                <div className="flex items-center justify-end gap-3 pt-2">
+                                    <button
+                                        onClick={handleCancelPassword}
+                                        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-sans uppercase tracking-widest text-gray-500 hover:text-foreground border border-gray-200 dark:border-gray-700 rounded transition-colors"
+                                    >
+                                        <X className="w-3.5 h-3.5" />
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handlePasswordSave}
+                                        disabled={savingPassword}
+                                        className="inline-flex items-center gap-1.5 px-6 py-2 bg-foreground text-background font-sans uppercase tracking-widest text-sm hover:opacity-90 disabled:opacity-50 transition-opacity rounded"
+                                    >
+                                        <Save className="w-3.5 h-3.5" />
+                                        {savingPassword ? "Changing..." : "Save Password"}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* 3 & 4. Name */}
+                    <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-800">
+                        <div className="flex items-center justify-between">
+                            <span className="text-xs font-sans uppercase tracking-widest text-gray-500">Name</span>
+                            {!isEditingName && (
+                                <button
+                                    onClick={() => {
+                                        setIsEditingName(true);
+                                        setEditName(profile?.name || "");
+                                    }}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-sans uppercase tracking-widest text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                                >
+                                    <Pencil className="w-3.5 h-3.5" /> Edit Name
+                                </button>
+                            )}
                         </div>
 
-                        {isEditing ? (
-                            /* ── Edit Mode ── */
-                            <div className="space-y-4">
-                                <div className="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg overflow-hidden">
+                        {!isEditingName ? (
+                            <div className="text-xl font-bold tracking-wide">
+                                {profile?.name || <span className="text-gray-400 italic font-normal text-base">No name set</span>}
+                            </div>
+                        ) : (
+                            <div className="space-y-3 p-4 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg">
+                                <input
+                                    type="text"
+                                    value={editName}
+                                    onChange={(e) => setEditName(e.target.value)}
+                                    placeholder="Enter your name"
+                                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded focus:outline-none focus:border-foreground transition-colors text-base"
+                                />
+                                <div className="flex items-center justify-end gap-3 pt-2">
+                                    <button
+                                        onClick={() => setIsEditingName(false)}
+                                        className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-sans uppercase tracking-widest text-gray-500 hover:text-foreground border border-gray-200 dark:border-gray-700 rounded transition-colors"
+                                    >
+                                        <X className="w-3.5 h-3.5" />
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleSaveName}
+                                        disabled={saving}
+                                        className="inline-flex items-center gap-1.5 px-6 py-2 bg-foreground text-background font-sans uppercase tracking-widest text-sm hover:opacity-90 disabled:opacity-50 transition-opacity rounded"
+                                    >
+                                        <Save className="w-3.5 h-3.5" />
+                                        {saving ? "Saving..." : "Save Name"}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* 5 & 6. Introduction */}
+                    <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-800">
+                        <div className="flex items-center justify-between">
+                            <span className="text-xs font-sans uppercase tracking-widest text-gray-500">Introduction</span>
+                            {!isEditingIntro && (
+                                <button
+                                    onClick={() => {
+                                        setIsEditingIntro(true);
+                                        setEditIntro(profile?.introduction || "");
+                                    }}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-sans uppercase tracking-widest text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                                >
+                                    <Pencil className="w-3.5 h-3.5" /> Edit Introduction
+                                </button>
+                            )}
+                        </div>
+
+                        {!isEditingIntro ? (
+                            <div className="bg-white dark:bg-gray-900 p-6 rounded-lg border border-gray-200 dark:border-gray-800 min-h-[100px]">
+                                {profile?.introduction?.trim() ? (
+                                    <MarkdownRenderer content={profile.introduction} />
+                                ) : (
+                                    <p className="text-gray-400 italic text-sm">No introduction yet.</p>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="space-y-4 p-4 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg">
+                                <div className="border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden">
                                     {/* Toolbar */}
-                                    <div className="flex flex-wrap items-center gap-1 px-3 py-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                                    <div className="flex flex-wrap items-center gap-1 px-3 py-2 border-b border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800/50">
                                         {TOOLBAR_ACTIONS.map((action) => (
                                             <button
                                                 key={action.title}
@@ -257,7 +408,7 @@ export default function ProfilePage() {
                                                     setTab("write");
                                                     insertToolbar(action);
                                                 }}
-                                                className="px-2.5 py-1.5 text-xs font-mono text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                                                className="px-2.5 py-1.5 text-xs font-mono text-gray-600 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-700 rounded transition-colors"
                                             >
                                                 {action.label}
                                             </button>
@@ -265,11 +416,11 @@ export default function ProfilePage() {
                                     </div>
 
                                     {/* Write / Preview tabs */}
-                                    <div className="flex border-b border-gray-200 dark:border-gray-700">
+                                    <div className="flex border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
                                         <button
                                             onClick={() => setTab("write")}
                                             className={`flex-1 py-3 text-sm font-sans uppercase tracking-widest text-center transition-colors ${tab === "write"
-                                                ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
+                                                ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50/50 dark:bg-blue-900/10"
                                                 : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                                                 }`}
                                         >
@@ -278,7 +429,7 @@ export default function ProfilePage() {
                                         <button
                                             onClick={() => setTab("preview")}
                                             className={`flex-1 py-3 text-sm font-sans uppercase tracking-widest text-center transition-colors ${tab === "preview"
-                                                ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
+                                                ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 bg-blue-50/50 dark:bg-blue-900/10"
                                                 : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                                                 }`}
                                         >
@@ -287,7 +438,7 @@ export default function ProfilePage() {
                                     </div>
 
                                     {/* Editor / Preview */}
-                                    <div className="min-h-[200px]">
+                                    <div className="min-h-[200px] bg-white dark:bg-gray-900">
                                         {tab === "write" ? (
                                             <textarea
                                                 ref={textareaRef}
@@ -301,48 +452,37 @@ export default function ProfilePage() {
                                                 {editIntro.trim() ? (
                                                     <MarkdownRenderer content={editIntro} />
                                                 ) : (
-                                                    <p className="text-gray-400 italic">Nothing to preview yet.</p>
+                                                    <p className="text-gray-400 italic font-sans text-sm">Nothing to preview yet.</p>
                                                 )}
                                             </div>
                                         )}
                                     </div>
                                 </div>
-
-                                {/* Save / Cancel */}
-                                <div className="flex items-center justify-end gap-3">
+                                <div className="flex items-center justify-end gap-3 pt-2">
                                     <button
-                                        onClick={handleCancelEdit}
+                                        onClick={() => setIsEditingIntro(false)}
                                         className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-sans uppercase tracking-widest text-gray-500 hover:text-foreground border border-gray-200 dark:border-gray-700 rounded transition-colors"
                                     >
                                         <X className="w-3.5 h-3.5" />
                                         Cancel
                                     </button>
                                     <button
-                                        onClick={handleSave}
+                                        onClick={handleSaveIntro}
                                         disabled={saving}
                                         className="inline-flex items-center gap-1.5 px-6 py-2 bg-foreground text-background font-sans uppercase tracking-widest text-sm hover:opacity-90 disabled:opacity-50 transition-opacity rounded"
                                     >
                                         <Save className="w-3.5 h-3.5" />
-                                        {saving ? "Saving..." : "Save"}
+                                        {saving ? "Saving..." : "Save Intro"}
                                     </button>
                                 </div>
-                            </div>
-                        ) : (
-                            /* ── View Mode ── */
-                            <div>
-                                {profile?.introduction?.trim() ? (
-                                    <MarkdownRenderer content={profile.introduction} />
-                                ) : (
-                                    <p className="text-gray-400 italic text-sm">No introduction yet.</p>
-                                )}
                             </div>
                         )}
                     </div>
 
-                    {/* Save message */}
+                    {/* Global Save Message */}
                     {saveMessage && (
                         <div
-                            className={`px-4 py-2 text-sm font-sans rounded ${saveMessage.includes("success")
+                            className={`px-4 py-3 text-sm font-sans text-center rounded ${saveMessage.includes("success")
                                 ? "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800"
                                 : "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800"
                                 }`}
@@ -351,99 +491,16 @@ export default function ProfilePage() {
                         </div>
                     )}
 
-                    {/* Password Change Mode */}
-                    {isChangingPassword && (
-                        <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-800">
-                            <h2 className="text-xl font-eczar mb-2 border-none">Change Password</h2>
-
-                            <div>
-                                <label className="block text-xs font-sans uppercase tracking-widest text-gray-500 mb-2">Current Password</label>
-                                <input
-                                    type="password"
-                                    value={oldPassword}
-                                    onChange={(e) => setOldPassword(e.target.value)}
-                                    className="w-full px-4 py-3 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded focus:outline-none focus:border-foreground transition-colors text-base"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-sans uppercase tracking-widest text-gray-500 mb-2">New Password</label>
-                                <input
-                                    type="password"
-                                    value={newPassword}
-                                    onChange={(e) => setNewPassword(e.target.value)}
-                                    className="w-full px-4 py-3 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded focus:outline-none focus:border-foreground transition-colors text-base"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-sans uppercase tracking-widest text-gray-500 mb-2">Confirm New Password</label>
-                                <input
-                                    type="password"
-                                    value={passwordConfirm}
-                                    onChange={(e) => setPasswordConfirm(e.target.value)}
-                                    className="w-full px-4 py-3 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded focus:outline-none focus:border-foreground transition-colors text-base"
-                                />
-                            </div>
-
-                            {passwordMessage && (
-                                <p className={`text-sm ${passwordMessage.includes("success") ? "text-green-500" : "text-red-500"}`}>
-                                    {passwordMessage}
-                                </p>
-                            )}
-
-                            <div className="flex items-center justify-end gap-3 pt-2">
-                                <button
-                                    onClick={handleCancelPassword}
-                                    className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-sans uppercase tracking-widest text-gray-500 hover:text-foreground border border-gray-200 dark:border-gray-700 rounded transition-colors"
-                                >
-                                    <X className="w-3.5 h-3.5" />
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handlePasswordSave}
-                                    disabled={savingPassword}
-                                    className="inline-flex items-center gap-1.5 px-6 py-2 bg-foreground text-background font-sans uppercase tracking-widest text-sm hover:opacity-90 disabled:opacity-50 transition-opacity rounded"
-                                >
-                                    <Save className="w-3.5 h-3.5" />
-                                    {savingPassword ? "Saving..." : "Save Password"}
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Change Password button */}
-                    {!isEditing && !isChangingPassword && (
-                        <button
-                            onClick={() => setIsChangingPassword(true)}
-                            className="w-full mt-4 py-3 inline-flex items-center justify-center gap-2 border border-blue-500 text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 font-sans uppercase tracking-widest text-sm transition-colors rounded"
-                        >
-                            <Key className="w-4 h-4" />
-                            Change Password
-                        </button>
-                    )}
-
-                    {/* Edit Profile button (above Sign Out) */}
-                    {!isEditing && !isChangingPassword && (
-                        <button
-                            onClick={() => setIsEditing(true)}
-                            className="w-full mt-2 py-3 inline-flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-sans uppercase tracking-widest text-sm transition-colors rounded"
-                        >
-                            <Pencil className="w-4 h-4" />
-                            Edit Profile
-                        </button>
-                    )}
-
                     {/* Sign Out */}
-                    {!isEditing && !isChangingPassword && (
-                        <button
-                            onClick={() => {
-                                logout();
-                                router.push("/");
-                            }}
-                            className="w-full mt-2 py-3 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white font-sans uppercase tracking-widest text-sm transition-colors rounded"
-                        >
-                            Sign Out
-                        </button>
-                    )}
+                    <button
+                        onClick={() => {
+                            logout();
+                            router.push("/");
+                        }}
+                        className="w-full mt-4 py-3 border border-red-500 text-red-500 hover:bg-red-500 hover:text-white font-sans uppercase tracking-widest text-sm transition-colors rounded"
+                    >
+                        Sign Out
+                    </button>
                 </div>
             </div>
         </main>

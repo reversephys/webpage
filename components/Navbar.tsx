@@ -18,6 +18,7 @@ export function Navbar() {
         { name: "Blog", href: "/blog" },
         { name: "Skills", href: "/skills", auth: true },
         { name: "Physical Lab", href: "/about" },
+        { name: "Member", href: "/member" },
         { name: "Staff", href: "/staff", auth: true },
     ];
 
