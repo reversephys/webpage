@@ -5,10 +5,14 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Edit, Trash2 } from "lucide-react";
 import { pb } from "@/lib/pocketbase";
+import { useAuth } from "@/components/AuthContext";
 
 export default function NoticePostActions({ slug }: { slug: string }) {
     const router = useRouter();
+    const { user } = useAuth();
     const [deleting, setDeleting] = useState(false);
+
+    if (!user) return null;
 
     const handleDelete = async () => {
         if (!confirm("Are you sure you want to delete this post?")) return;

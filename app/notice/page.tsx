@@ -14,15 +14,7 @@ export default function NoticePage() {
     const [query, setQuery] = useState("");
     const [loading, setLoading] = useState(true);
 
-    // Redirect to login if not authenticated
     useEffect(() => {
-        if (!authLoading && !user) {
-            router.push("/login");
-        }
-    }, [user, authLoading, router]);
-
-    useEffect(() => {
-        if (!user) return;
         (async () => {
             try {
                 const res = await fetch("/api/notice/posts");
@@ -36,15 +28,7 @@ export default function NoticePage() {
         })();
     }, [user]);
 
-    if (authLoading) {
-        return (
-            <main className="min-h-screen bg-background pt-32 pb-20 px-6 font-serif">
-                <div className="max-w-4xl mx-auto text-center text-gray-400">Loading...</div>
-            </main>
-        );
-    }
 
-    if (!user) return null;
 
     const filtered = query.trim()
         ? posts.filter((post) => {
@@ -62,12 +46,14 @@ export default function NoticePage() {
             <div className="max-w-4xl mx-auto">
                 <div className="flex items-end justify-between mb-8">
                     <h1 className="text-3xl md:text-5xl font-eczar tracking-tight">Notice</h1>
-                    <Link
-                        href="/notice/write"
-                        className="text-sm font-sans uppercase tracking-widest border border-gray-300 dark:border-gray-600 px-5 py-2 hover:bg-foreground hover:text-background transition-colors"
-                    >
-                        Write
-                    </Link>
+                    {user && (
+                        <Link
+                            href="/notice/write"
+                            className="text-sm font-sans uppercase tracking-widest border border-gray-300 dark:border-gray-600 px-5 py-2 hover:bg-foreground hover:text-background transition-colors"
+                        >
+                            Write
+                        </Link>
+                    )}
                 </div>
 
                 {/* Search bar */}
