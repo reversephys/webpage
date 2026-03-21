@@ -14,8 +14,11 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
         id: record.id,
+        collectionId: record.collectionId,
         username: record.username,
         email: record.email || "",
+        name: record.name || "",
+        avatar: record.avatar || "",
         introduction: record.introduction || "",
         created: record.created,
         updated: record.updated,

@@ -11,9 +11,11 @@ type Tab = "write" | "preview";
 
 interface ProfileData {
     id: string;
+    collectionId?: string;
     username: string;
     email: string;
     name: string;
+    avatar?: string;
     introduction: string;
     created: string;
     updated: string;
@@ -63,6 +65,10 @@ export default function ProfilePage() {
     const [tab, setTab] = useState<Tab>("write");
     const [editIntro, setEditIntro] = useState("");
     const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+    // Avatar edit state
+    const [isEditingAvatar, setIsEditingAvatar] = useState(false);
+    const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
     // Redirect if not authenticated
     useEffect(() => {
@@ -138,6 +144,46 @@ export default function ProfilePage() {
                 setTimeout(() => setSaveMessage(null), 3000);
             } else {
                 setSaveMessage(data.error || "Failed to save name.");
+            }
+        } catch {
+            setSaveMessage("Network error. Please try again.");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleSaveAvatar = async () => {
+        if (!avatarFile) {
+            setSaveMessage("Please select an image file first.");
+            setTimeout(() => setSaveMessage(null), 3000);
+            return;
+        }
+
+        setSaving(true);
+        setSaveMessage(null);
+
+        try {
+            const formData = new FormData();
+            formData.append("avatar", avatarFile);
+
+            const res = await fetch("/api/profile/avatar", {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${pb.authStore.token}`,
+                },
+                body: formData,
+            });
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                pb.authStore.save(data.token, data.record);
+                setProfile((prev) => (prev ? { ...prev, avatar: data.record.avatar, collectionId: data.record.collectionId } : prev));
+                setIsEditingAvatar(false);
+                setAvatarFile(null);
+                setSaveMessage("Avatar updated successfully!");
+                setTimeout(() => setSaveMessage(null), 3000);
+            } else {
+                setSaveMessage(data.error || "Failed to save avatar.");
             }
         } catch {
             setSaveMessage("Network error. Please try again.");
@@ -244,23 +290,27 @@ export default function ProfilePage() {
 
                 <div className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 rounded-lg p-8 space-y-8">
 
-                    {/* 1. User Name */}
-                    <div className="flex items-center justify-between pb-4 border-b border-gray-200 dark:border-gray-800">
-                        <span className="text-xs font-sans uppercase tracking-widest text-gray-500">Username</span>
-                        <span className="text-lg font-bold tracking-wider">{profile?.username || user.username}</span>
-                    </div>
+                    {/* 1. User Name & Change Password */}
+                    <div className="pb-4 border-b border-gray-200 dark:border-gray-800 flex flex-col space-y-4">
+                        <div className="w-full">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs font-sans uppercase tracking-widest text-gray-500">Username</span>
+                                {!isChangingPassword && (
+                                    <button
+                                        onClick={() => setIsChangingPassword(true)}
+                                        className="whitespace-nowrap inline-flex items-center gap-1.5 px-2 py-1 text-[10px] font-sans uppercase tracking-widest text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                                    >
+                                        <Key className="w-3 h-3" /> Change Password
+                                    </button>
+                                )}
+                            </div>
+                            <div className="text-lg sm:text-xl font-bold tracking-wider truncate">
+                                {profile?.username || user.username}
+                            </div>
+                        </div>
 
-                    {/* 2. Change Password */}
-                    <div>
-                        {!isChangingPassword ? (
-                            <button
-                                onClick={() => setIsChangingPassword(true)}
-                                className="w-full py-3 inline-flex items-center justify-center gap-2 border border-black dark:border-white text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black font-sans uppercase tracking-widest text-sm transition-colors rounded"
-                            >
-                                <Key className="w-4 h-4" />
-                                Change Password
-                            </button>
-                        ) : (
+                        {/* Password Form */}
+                        {isChangingPassword && (
                             <div className="space-y-4 p-6 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg">
                                 <h2 className="text-xl font-eczar mb-4">Change Password</h2>
 
@@ -319,28 +369,32 @@ export default function ProfilePage() {
                         )}
                     </div>
 
-                    {/* 3 & 4. Name */}
-                    <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-800">
-                        <div className="flex items-center justify-between">
-                            <span className="text-xs font-sans uppercase tracking-widest text-gray-500">Name</span>
+                    {/* Name */}
+                    <div className="pb-4 border-b border-gray-200 dark:border-gray-800 flex flex-col space-y-4">
+                        <div className="w-full">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs font-sans uppercase tracking-widest text-gray-500">Name</span>
+                                {!isEditingName && (
+                                    <button
+                                        onClick={() => {
+                                            setIsEditingName(true);
+                                            setEditName(profile?.name || "");
+                                        }}
+                                        className="whitespace-nowrap inline-flex items-center gap-1.5 px-2 py-1 text-[10px] font-sans uppercase tracking-widest text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                                    >
+                                        <Pencil className="w-3 h-3" /> Edit Name
+                                    </button>
+                                )}
+                            </div>
                             {!isEditingName && (
-                                <button
-                                    onClick={() => {
-                                        setIsEditingName(true);
-                                        setEditName(profile?.name || "");
-                                    }}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-sans uppercase tracking-widest text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
-                                >
-                                    <Pencil className="w-3.5 h-3.5" /> Edit Name
-                                </button>
+                                <div className="text-lg sm:text-xl font-bold tracking-wider truncate">
+                                    {profile?.name || <span className="text-gray-400 italic font-normal text-base">No name set</span>}
+                                </div>
                             )}
                         </div>
 
-                        {!isEditingName ? (
-                            <div className="text-xl font-bold tracking-wide">
-                                {profile?.name || <span className="text-gray-400 italic font-normal text-base">No name set</span>}
-                            </div>
-                        ) : (
+                        {/* Name Edit Form */}
+                        {isEditingName && (
                             <div className="space-y-3 p-4 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg">
                                 <input
                                     type="text"
@@ -370,9 +424,64 @@ export default function ProfilePage() {
                         )}
                     </div>
 
+                    {/* Avatar */}
+                    <div className="pb-4 border-b border-gray-200 dark:border-gray-800 flex flex-col space-y-4">
+                        <div className="w-full">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs font-sans uppercase tracking-widest text-gray-500">Avatar</span>
+                                {!isEditingAvatar && (
+                                    <button
+                                        onClick={() => setIsEditingAvatar(true)}
+                                        className="whitespace-nowrap inline-flex items-center gap-1.5 px-2 py-1 text-[10px] font-sans uppercase tracking-widest text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                                    >
+                                        <Pencil className="w-3 h-3" /> Edit Avatar
+                                    </button>
+                                )}
+                            </div>
+                            {!isEditingAvatar ? (
+                                <div className="mt-2 text-lg sm:text-xl font-bold tracking-wider truncate">
+                                    {profile?.avatar ? (
+                                        <img src={`http://127.0.0.1:8090/api/files/${profile.collectionId}/${profile.id}/${profile.avatar}`} alt="Avatar" className="w-20 h-20 rounded-full object-cover border border-gray-200 dark:border-gray-700" />
+                                    ) : (
+                                        <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center border border-gray-300 dark:border-gray-700 shrink-0">
+                                            <span className="text-gray-400 text-sm font-normal">No img</span>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className="space-y-3 p-4 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 rounded-lg">
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => setAvatarFile(e.target.files?.[0] || null)}
+                                        className="w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 dark:file:bg-gray-800 dark:file:text-gray-300 dark:hover:file:bg-gray-700"
+                                    />
+                                    <div className="flex items-center justify-end gap-3 pt-2">
+                                        <button
+                                            onClick={() => {
+                                                setIsEditingAvatar(false);
+                                                setAvatarFile(null);
+                                            }}
+                                            className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-sans uppercase tracking-widest text-gray-500 hover:text-foreground border border-gray-200 dark:border-gray-700 rounded transition-colors"
+                                        >
+                                            <X className="w-3.5 h-3.5" /> Cancel
+                                        </button>
+                                        <button
+                                            onClick={handleSaveAvatar}
+                                            disabled={saving}
+                                            className="inline-flex items-center gap-1.5 px-6 py-2 bg-foreground text-background font-sans uppercase tracking-widest text-sm hover:opacity-90 disabled:opacity-50 transition-opacity rounded"
+                                        >
+                                            <Save className="w-3.5 h-3.5" /> {saving ? "Saving..." : "Save Avatar"}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
                     {/* 5 & 6. Introduction */}
-                    <div className="space-y-4 pt-4 border-t border-gray-200 dark:border-gray-800">
-                        <div className="flex items-center justify-between">
+                    <div className="pb-4 border-b border-gray-200 dark:border-gray-800 flex flex-col space-y-4">
+                        <div className="flex items-center justify-between mb-2">
                             <span className="text-xs font-sans uppercase tracking-widest text-gray-500">Introduction</span>
                             {!isEditingIntro && (
                                 <button
@@ -380,9 +489,9 @@ export default function ProfilePage() {
                                         setIsEditingIntro(true);
                                         setEditIntro(profile?.introduction || "");
                                     }}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-sans uppercase tracking-widest text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
+                                    className="whitespace-nowrap inline-flex items-center gap-1.5 px-2 py-1 text-[10px] font-sans uppercase tracking-widest text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 rounded transition-colors"
                                 >
-                                    <Pencil className="w-3.5 h-3.5" /> Edit Introduction
+                                    <Pencil className="w-3 h-3" /> Edit Introduction
                                 </button>
                             )}
                         </div>
@@ -438,14 +547,15 @@ export default function ProfilePage() {
                                     </div>
 
                                     {/* Editor / Preview */}
-                                    <div className="min-h-[200px] bg-white dark:bg-gray-900">
+                                    <div className="min-h-[400px] bg-white dark:bg-gray-900">
                                         {tab === "write" ? (
                                             <textarea
                                                 ref={textareaRef}
                                                 value={editIntro}
                                                 onChange={(e) => setEditIntro(e.target.value)}
                                                 placeholder="Write your introduction in Markdown..."
-                                                className="w-full h-[200px] px-6 py-5 bg-transparent text-base font-mono leading-relaxed resize-y focus:outline-none placeholder:text-gray-300 dark:placeholder:text-gray-600"
+                                                className="w-full px-6 py-5 bg-transparent text-base font-mono leading-relaxed resize-y focus:outline-none placeholder:text-gray-300 dark:placeholder:text-gray-600"
+                                                style={{ minHeight: '400px' }}
                                             />
                                         ) : (
                                             <div className="px-6 py-5">
