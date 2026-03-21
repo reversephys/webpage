@@ -33,8 +33,8 @@ export function Navbar() {
                 { name: "Staff", href: "/staff", auth: true },
             ]
         },
-        { name: "Physical Lab", href: "/about" },
         { name: "Member", href: "/member" },
+        { name: "Physical Lab", href: "/about" },
     ];
 
     const navItems = allNavItems.map(item => {
