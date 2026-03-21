@@ -22,6 +22,7 @@ export function Navbar() {
 
     const allNavItems: NavItem[] = [
         { name: "Home", href: "/" },
+        { name: "Notice", href: "/notice" },
         {
             name: "POST",
             isDropdown: true,
