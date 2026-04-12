@@ -7,6 +7,7 @@ services:
       - "3000:3000"
     volumes:
       - ./Contents:/app/Contents
+      - ~/.ssh:/root/.ssh:ro
     environment:
       # host.docker.internal works automatically on Docker Desktop (Windows/Mac).
       # On native Linux, it might require adding extra_hosts.

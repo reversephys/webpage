@@ -27,3 +27,29 @@ if [ "$(git rev-parse HEAD)" != "$(git rev-parse @{u})" ]; then
 else
     echo "$(date): No updates found."
 fi
+
+# ==========================================
+# Task 2: Auto Backup Contents
+# ==========================================
+echo "$(date): Starting Contents backup..."
+cd /app/Contents
+
+# Set git identity just for this container
+git config --global user.name "Docker Auto Backup"
+git config --global user.email "docker@physicallab.com"
+
+# Add trusting directory inside docker
+git config --global --add safe.directory /app/Contents
+
+git add .
+# Check if there are changes to commit
+if ! git diff-index --quiet HEAD; then
+    git commit -m "Auto backup: $(date)"
+    
+    # Bypass StrictHostKeyChecking since container doesn't have known_hosts
+    GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new" git push origin main
+    
+    echo "$(date): Contents backup pushed successfully."
+else
+    echo "$(date): No changes in Contents to backup."
+fi
