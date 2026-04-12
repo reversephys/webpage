@@ -8,6 +8,7 @@ import { useAuth } from "@/components/AuthContext";
 interface Skill {
     title: string;
     content: string;
+    authorName?: string;
 }
 
 export default function SkillsPage() {
@@ -93,7 +94,12 @@ export default function SkillsPage() {
                                 className="block border border-gray-200 dark:border-gray-800 p-4 hover:border-gray-400 dark:hover:border-gray-600 transition-colors group bg-white dark:bg-black/20"
                             >
                                 <div className="flex justify-between items-center">
-                                    <h2 className="text-xl font-bold font-serif group-hover:underline decoration-1 underline-offset-4">{skill.title}</h2>
+                                    <div>
+                                        <h2 className="text-xl font-bold font-serif group-hover:underline decoration-1 underline-offset-4">{skill.title}</h2>
+                                        <div className="text-xs tracking-[0.2em] text-gray-400 uppercase font-sans mt-2">
+                                            BY {skill.authorName}
+                                        </div>
+                                    </div>
                                     <span className="text-xs font-sans uppercase tracking-widest text-gray-400 group-hover:text-foreground transition-colors">
                                         View
                                     </span>

@@ -1,4 +1,5 @@
 import { getPostBySlug } from "@/lib/staff";
+import { getUserMap } from "@/lib/users";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Trash2, Edit } from "lucide-react";
@@ -13,6 +14,8 @@ interface StaffPostPageProps {
 export default async function StaffPostPage({ params }: StaffPostPageProps) {
     const { slug } = await params;
     const post = getPostBySlug(slug);
+    const userMap = await getUserMap();
+    const authorName = post?.userId ? (userMap.get(post.userId) || "Unknown") : "Unknown";
 
     if (!post) {
         notFound();
@@ -38,6 +41,8 @@ export default async function StaffPostPage({ params }: StaffPostPageProps) {
                     <header className="mb-12 text-center">
                         <div className="flex justify-center items-center gap-4 mb-6 text-xs tracking-[0.2em] text-gray-400 uppercase font-sans">
                             <span>{post.date}</span>
+                            <span className="w-8 h-[1px] bg-gray-200 dark:bg-gray-700" />
+                            <span>BY {authorName}</span>
                             <span className="w-8 h-[1px] bg-gray-200 dark:bg-gray-700" />
                             <span>{post.tag}</span>
                         </div>

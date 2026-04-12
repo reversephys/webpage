@@ -31,8 +31,10 @@ export async function POST(request: NextRequest) {
 
         const safeTitle = title.replace(/[^a-zA-Z0-9가-힣\s-]/g, "").trim().replace(/\s+/g, "-");
         const safeTag = tag.replace(/[^a-zA-Z0-9가-힣\s-]/g, "").trim().replace(/\s+/g, "-");
+        // We ensure userId has no underscores since `sanitizeFolderName` in blog strips them. We will just strip them here too.
+        const safeUserId = user.id.replace(/_/g, "");
 
-        const folderName = `${timestamp}_${safeTag}_${safeTitle}`;
+        const folderName = `${timestamp}_${safeUserId}_${safeTag}_${safeTitle}`;
         const folderPath = path.join(CONTENTS_DIR, folderName);
 
         if (fs.existsSync(folderPath)) {

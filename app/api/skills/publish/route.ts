@@ -28,11 +28,12 @@ export async function POST(request: NextRequest) {
 
         // Sanitize filename (basic)
         const safeTitle = title.replace(/[^a-zA-Z0-9\-\.\_\s]/g, "").trim();
+        const safeUserId = user.id.replace(/_/g, "");
         if (!safeTitle) {
             return NextResponse.json({ error: "Invalid title." }, { status: 400 });
         }
 
-        const filePath = path.join(SKILLS_DIR, `${safeTitle}.md`);
+        const filePath = path.join(SKILLS_DIR, `${safeUserId}_${safeTitle}.md`);
 
         // Check if exists (prevent overwrite on create)
         if (fs.existsSync(filePath)) {

@@ -13,6 +13,7 @@ interface BlogPost {
     excerpt: string;
     thumbnail: string | null;
     content?: string;
+    authorName?: string;
 }
 
 export default function BlogPage() {
@@ -103,6 +104,8 @@ export default function BlogPage() {
                                 <div>
                                     <div className="flex items-center gap-4 mb-2 text-xs tracking-[0.2em] text-gray-400 uppercase font-sans">
                                         <span>{post.date}</span>
+                                        <span className="w-8 h-[1px] bg-gray-200 dark:bg-gray-700" />
+                                        <span>BY {post.authorName}</span>
                                         <span className="w-8 h-[1px] bg-gray-200 dark:bg-gray-700" />
                                         <span>{post.tag}</span>
                                     </div>

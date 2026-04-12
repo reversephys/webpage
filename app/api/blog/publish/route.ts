@@ -81,7 +81,8 @@ export async function POST(request: NextRequest) {
         const timestamp = getTimestamp();
         const sanitizedTag = sanitizeFolderName(tag);
         const sanitizedTitle = sanitizeFolderName(title);
-        const folderName = `${timestamp}_${sanitizedTag}_${sanitizedTitle}`;
+        const userId = sanitizeFolderName(user.id);
+        const folderName = `${timestamp}_${userId}_${sanitizedTag}_${sanitizedTitle}`;
         const folderPath = path.join(CONTENTS_DIR, folderName);
 
         // Create directories

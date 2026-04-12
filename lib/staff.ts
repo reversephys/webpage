@@ -7,28 +7,24 @@ export interface StaffPost {
     date: string;        // formatted date string e.g. "Feb 10, 2026"
     rawDate: string;     // yyyymmdd
     tag: string;
+    userId: string;
     excerpt: string;
     thumbnail: string | null;  // API route path to thumbnail image
     content?: string;    // full MD content (only in detail view)
+    authorName?: string; // Appended by API/Server
 }
 
 const CONTENTS_DIR = path.join(process.cwd(), "Contents", "STAFF");
 
-/**
- * Parse folder name: {yyyymmdd}_{title}_{tag}
- */
-function parseFolderName(folderName: string): { rawDate: string; title: string; tag: string } | null {
-    // Match pattern: 14 digits _ tag _ title
-    // Note: Blog uses 14 digits (YYYYMMDDHHMMSS) or 8 digits?
-    // Let's check blog.ts regex: /^(\d{14})_([^_]+)_(.+)$/
-    // It expects 14 digits.
-    const match = folderName.match(/^(\d{14})_([^_]+)_(.+)$/);
-    if (!match) return null;
-    return {
-        rawDate: match[1],
-        tag: match[2],
-        title: match[3],
-    };
+function parseFolderName(folderName: string): { rawDate: string; userId: string; title: string; tag: string } | null {
+    const parts = folderName.split('_');
+    if (parts.length === 4) {
+        return { rawDate: parts[0], userId: parts[1], tag: parts[2], title: parts[3] };
+    }
+    if (parts.length === 3) {
+        return { rawDate: parts[0], userId: "", tag: parts[1], title: parts[2] };
+    }
+    return null;
 }
 
 /**
@@ -134,6 +130,7 @@ export function getAllPosts(): StaffPost[] {
             date: formatDate(parsed.rawDate),
             rawDate: parsed.rawDate,
             tag: parsed.tag,
+            userId: parsed.userId,
             excerpt,
             thumbnail,
         });
@@ -181,6 +178,7 @@ export function getPostBySlug(slug: string): StaffPost | null {
             date: formatDate(parsed.rawDate),
             rawDate: parsed.rawDate,
             tag: parsed.tag,
+            userId: parsed.userId,
             excerpt,
             thumbnail,
             content,

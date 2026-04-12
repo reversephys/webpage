@@ -27,11 +27,22 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ redirect: "/skills" }, { status: 200 });
         }
 
-        const oldPath = path.join(SKILLS_DIR, `${originalTitle}.md`);
+        let oldPath = path.join(SKILLS_DIR, `${originalTitle}.md`);
+        // Allow fallback to dynamic matching if exact match not found
+        if (!fs.existsSync(oldPath)) {
+            const files = fs.readdirSync(SKILLS_DIR);
+            const matched = files.find(f => {
+                const base = f.replace(/\.md$/, "");
+                const match = base.match(/^([a-z0-9]{15})_(.+)$/i);
+                return match && match[2] === originalTitle;
+            });
+            if (matched) oldPath = path.join(SKILLS_DIR, matched);
+        }
 
         // Sanitize new filename
         const safeNewTitle = newTitle.replace(/[^a-zA-Z0-9\-\.\_\s]/g, "").trim();
-        const newPath = path.join(SKILLS_DIR, `${safeNewTitle}.md`);
+        const safeUserId = user.id.replace(/_/g, "");
+        const newPath = path.join(SKILLS_DIR, `${safeUserId}_${safeNewTitle}.md`);
 
         if (!fs.existsSync(oldPath)) {
             return NextResponse.json({ error: "Original skill not found." }, { status: 404 });

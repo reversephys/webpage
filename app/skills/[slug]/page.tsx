@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { getAllSkills, getSkillByTitle } from "@/lib/skills";
+import { getUserMap } from "@/lib/users";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { SkillActions } from "@/components/SkillActions";
 import AuthGuard from "@/components/AuthGuard";
@@ -23,6 +24,8 @@ export default async function SkillPage({ params }: SkillPageProps) {
     const title = decodeURIComponent(slug);
 
     const skill = getSkillByTitle(title);
+    const userMap = await getUserMap();
+    const authorName = skill?.userId ? (userMap.get(skill.userId) || "Unknown") : "Unknown";
 
     if (!skill) {
         notFound();
@@ -46,6 +49,9 @@ export default async function SkillPage({ params }: SkillPageProps) {
 
                     {/* Header */}
                     <header className="mb-12 text-center">
+                        <div className="flex justify-center items-center gap-4 mb-6 text-xs tracking-[0.2em] text-gray-400 uppercase font-sans">
+                            <span>BY {authorName}</span>
+                        </div>
                         <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-8">
                             {skill.title}
                         </h1>
