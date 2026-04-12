@@ -17,7 +17,8 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        const pb = new PocketBase("http://127.0.0.1:8090");
+        const pbUrl = process.env.NEXT_PUBLIC_POCKETBASE_URL || 'http://127.0.0.1:8090';
+        const pb = new PocketBase(pbUrl);
         const authData = await pb.collection("users").authWithPassword(username, password);
 
         const response = NextResponse.json({

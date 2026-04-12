@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+  web:
+    build: .
+    container_name: reversephys-web
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./Contents:/app/Contents
+    environment:
+      # host.docker.internal works automatically on Docker Desktop (Windows/Mac).
+      # On native Linux, it might require adding extra_hosts.
+      - NEXT_PUBLIC_POCKETBASE_URL=http://host.docker.internal:8090
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

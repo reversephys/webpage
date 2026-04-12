@@ -16,7 +16,8 @@ export async function verifyAuth(request: NextRequest) {
     if (!token) return null;
 
     try {
-        const pb = new PocketBase("http://127.0.0.1:8090");
+        const pbUrl = process.env.NEXT_PUBLIC_POCKETBASE_URL || 'http://127.0.0.1:8090';
+        const pb = new PocketBase(pbUrl);
         pb.authStore.save(token, null);
         // Validate the token by refreshing auth
         const authData = await pb.collection("users").authRefresh();
