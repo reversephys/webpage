@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import { getAllPosts } from "@/lib/blog";
 import { getUserMap } from "@/lib/users";
+import { getServerUserFromCookie } from "@/lib/auth-server";
 
 const CONTENTS_DIR = path.join(process.cwd(), "Contents", "BLOG");
 
@@ -32,5 +33,13 @@ export async function GET() {
         return { ...post, content, authorName };
     });
 
-    return NextResponse.json(postsWithContent);
+    const user = await getServerUserFromCookie();
+    const permGroup = user?.permission_group !== undefined ? Number(user.permission_group) : -1;
+    const hasAccess = permGroup >= 3;
+
+    const filteredPosts = hasAccess
+        ? postsWithContent
+        : postsWithContent.filter(p => p.tag === "public");
+
+    return NextResponse.json(filteredPosts);
 }

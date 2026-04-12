@@ -5,6 +5,7 @@ export interface UserRecord {
     username: string;
     email?: string;
     introduction?: string;
+    permission_group?: number;
     created: string;
     updated: string;
 }
@@ -45,6 +46,9 @@ export async function registerUser(username: string, password: string, passwordC
 
 export function logoutUser() {
     pb.authStore.clear();
+    if (typeof document !== 'undefined') {
+        document.cookie = "pb_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    }
 }
 
 export function getCurrentUser(): UserRecord | null {

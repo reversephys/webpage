@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Edit, Trash2 } from "lucide-react";
 import { pb } from "@/lib/pocketbase";
+import { useAuth } from "@/components/AuthContext";
 
-export default function StaffPostActions({ slug }: { slug: string }) {
+export default function StaffPostActions({ slug, authorId }: { slug: string, authorId?: string }) {
     const router = useRouter();
     const [deleting, setDeleting] = useState(false);
+    const { user } = useAuth();
 
     const handleDelete = async () => {
         if (!confirm("Are you sure you want to delete this post?")) return;
@@ -29,6 +31,8 @@ export default function StaffPostActions({ slug }: { slug: string }) {
             setDeleting(false);
         }
     };
+
+    if (!user || user.id !== authorId) return null;
 
     return (
         <div className="flex items-center gap-4">

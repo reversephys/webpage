@@ -4,14 +4,17 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { pb } from "@/lib/pocketbase";
+import { useAuth } from "@/components/AuthContext";
 
 interface SkillActionsProps {
     title: string;
+    authorId?: string;
 }
 
-export function SkillActions({ title }: SkillActionsProps) {
+export function SkillActions({ title, authorId }: SkillActionsProps) {
     const router = useRouter();
     const [deleting, setDeleting] = useState(false);
+    const { user } = useAuth();
 
     const handleDelete = async () => {
         if (!confirm("Are you sure you want to delete this skill?")) return;
@@ -46,19 +49,23 @@ export function SkillActions({ title }: SkillActionsProps) {
             >
                 Download
             </Link>
-            <Link
-                href={`/skills/write?edit=${encodeURIComponent(title)}`}
-                className="text-xs font-sans uppercase tracking-widest border border-gray-300 dark:border-gray-600 px-4 py-1.5 hover:bg-foreground hover:text-background transition-colors"
-            >
-                Edit
-            </Link>
-            <button
-                onClick={handleDelete}
-                disabled={deleting}
-                className="text-xs font-sans uppercase tracking-widest border border-gray-300 dark:border-gray-600 px-4 py-1.5 hover:bg-red-600 hover:text-white hover:border-red-600 transition-colors disabled:opacity-50"
-            >
-                {deleting ? "Deleting..." : "Delete"}
-            </button>
+            {user && user.id === authorId && (
+                <>
+                    <Link
+                        href={`/skills/write?edit=${encodeURIComponent(title)}`}
+                        className="text-xs font-sans uppercase tracking-widest border border-gray-300 dark:border-gray-600 px-4 py-1.5 hover:bg-foreground hover:text-background transition-colors"
+                    >
+                        Edit
+                    </Link>
+                    <button
+                        onClick={handleDelete}
+                        disabled={deleting}
+                        className="text-xs font-sans uppercase tracking-widest border border-gray-300 dark:border-gray-600 px-4 py-1.5 hover:bg-red-600 hover:text-white hover:border-red-600 transition-colors disabled:opacity-50"
+                    >
+                        {deleting ? "Deleting..." : "Delete"}
+                    </button>
+                </>
+            )}
         </div>
     );
 }

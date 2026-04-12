@@ -1,5 +1,6 @@
 import PocketBase from "pocketbase";
 import { NextRequest, NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 /**
  * Verify auth token from request Authorization header.
@@ -33,4 +34,22 @@ export function unauthorizedResponse() {
         { error: "Unauthorized. Please log in." },
         { status: 401 }
     );
+}
+
+/**
+ * Get user securely in a Server Component using cookies.
+ */
+export async function getServerUserFromCookie() {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("pb_auth")?.value;
+    if (!token) return null;
+
+    try {
+        const pb = new PocketBase("http://127.0.0.1:8090");
+        pb.authStore.save(token, null);
+        const authData = await pb.collection("users").authRefresh();
+        return authData.record;
+    } catch {
+        return null;
+    }
 }

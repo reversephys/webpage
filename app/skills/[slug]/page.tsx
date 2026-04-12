@@ -44,7 +44,7 @@ export default async function SkillPage({ params }: SkillPageProps) {
                             Back to Skills
                         </Link>
 
-                        <SkillActions title={skill.title} />
+                        <SkillActions title={skill.title} authorId={skill.userId} />
                     </div>
 
                     {/* Header */}

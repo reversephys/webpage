@@ -4,14 +4,17 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
 import { pb } from "@/lib/pocketbase";
+import { useAuth } from "@/components/AuthContext";
 
 interface PostActionsProps {
     slug: string;
+    authorId?: string;
 }
 
-export function PostActions({ slug }: PostActionsProps) {
+export function PostActions({ slug, authorId }: PostActionsProps) {
     const router = useRouter();
     const [deleting, setDeleting] = useState(false);
+    const { user } = useAuth();
 
     const handleDelete = async () => {
         if (!confirm("Are you sure you want to delete this post?")) return;
@@ -37,6 +40,8 @@ export function PostActions({ slug }: PostActionsProps) {
             setDeleting(false);
         }
     };
+
+    if (!user || user.id !== authorId) return null;
 
     return (
         <div className="flex gap-3">

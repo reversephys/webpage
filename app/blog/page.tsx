@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/components/AuthContext";
 
 interface BlogPost {
     slug: string;
@@ -20,6 +21,7 @@ export default function BlogPage() {
     const [posts, setPosts] = useState<BlogPost[]>([]);
     const [query, setQuery] = useState("");
     const [loading, setLoading] = useState(true);
+    const { user } = useAuth();
 
     useEffect(() => {
         (async () => {
@@ -52,12 +54,14 @@ export default function BlogPage() {
             <div className="max-w-4xl mx-auto">
                 <div className="flex items-end justify-between mb-8">
                     <h1 className="text-3xl md:text-5xl font-eczar tracking-tight">Posts</h1>
-                    <Link
-                        href="/blog/write"
-                        className="text-sm font-sans uppercase tracking-widest border border-gray-300 dark:border-gray-600 px-5 py-2 hover:bg-foreground hover:text-background transition-colors"
-                    >
-                        Write
-                    </Link>
+                    {user && user.permission_group !== undefined && Number(user.permission_group) >= 3 && (
+                        <Link
+                            href="/blog/write"
+                            className="text-sm font-sans uppercase tracking-widest border border-gray-300 dark:border-gray-600 px-5 py-2 hover:bg-foreground hover:text-background transition-colors"
+                        >
+                            Write
+                        </Link>
+                    )}
                 </div>
 
                 {/* Search bar */}

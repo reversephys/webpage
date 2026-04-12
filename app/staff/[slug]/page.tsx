@@ -34,7 +34,7 @@ export default async function StaffPostPage({ params }: StaffPostPageProps) {
                             <ArrowLeft className="mr-2 w-4 h-4 group-hover:-translate-x-1 transition-transform" />
                             Back to Staff
                         </Link>
-                        <StaffPostActions slug={post.slug} />
+                        <StaffPostActions slug={post.slug} authorId={post.userId} />
                     </div>
 
                     {/* Post header */}

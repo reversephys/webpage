@@ -20,10 +20,15 @@ export async function POST(request: NextRequest) {
         const pb = new PocketBase("http://127.0.0.1:8090");
         const authData = await pb.collection("users").authWithPassword(username, password);
 
-        return NextResponse.json({
+        const response = NextResponse.json({
             token: authData.token,
             record: authData.record,
         });
+
+        // Set token in a cookie for Server Components to read
+        response.cookies.set("pb_auth", authData.token, { path: "/" });
+
+        return response;
     } catch (error: unknown) {
         console.error("Login error:", error);
         const message =
