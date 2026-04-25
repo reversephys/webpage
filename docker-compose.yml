@@ -5,13 +5,12 @@ services:
     container_name: reversephys-web
     ports:
       - "3000:3000"
+      - "8090:8090"
     volumes:
       - ./Contents:/app/Contents
+      - ./backend/pb_data:/app/backend/pb_data
       - ~/.ssh:/root/.ssh:ro
     environment:
-      # host.docker.internal works automatically on Docker Desktop (Windows/Mac).
-      # On native Linux, it might require adding extra_hosts.
-      - NEXT_PUBLIC_POCKETBASE_URL=http://host.docker.internal:8090
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      # Use internal localhost for server-side Next.js data fetching
+      - NEXT_PUBLIC_POCKETBASE_URL=http://127.0.0.1:8090
     restart: unless-stopped
