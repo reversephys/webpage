@@ -28,12 +28,14 @@ RUN echo "0 0 * * * /app/update.sh >> /var/log/cron.log 2>&1" > /etc/crontabs/ro
 ENV NODE_ENV=production
 ENV NEXT_PUBLIC_POCKETBASE_URL=http://127.0.0.1:8090
 
-# Install dependencies and build initially (while running PocketBase temporarily)
-RUN npm install --include=dev && \
-    pocketbase serve --dir /app/backend/pb_data & \
+# Install dependencies first
+RUN npm install --include=dev
+
+# Start local PocketBase DB in background, run Next.js build, and stop it
+RUN pocketbase serve --dir /app/backend/pb_data & \
     sleep 3 && \
     npm run build && \
-    pkill pocketbase
+    pkill pocketbase || true
 
 # Expose Next.js and PocketBase ports
 EXPOSE 3000
