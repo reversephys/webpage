@@ -1,4 +1,4 @@
-from node:20-alpine
+FROM node:20-alpine
 
 # Install git, cron, and pm2
 RUN apk update && \
@@ -22,7 +22,7 @@ RUN echo "0 0 * * * /app/update.sh >> /var/log/cron.log 2>&1" > /etc/crontabs/ro
 ENV NODE_ENV=production
 
 # Install dependencies and build initially
-RUN npm install && npm run build
+RUN npm install --include=dev && npm run build
 
 # Expose port
 EXPOSE 3000
