@@ -1,4 +1,4 @@
-FROM node:20-alpine
+FROM node:22-alpine
 
 # Install git, cron, rm, pm2, and wget/unzip for PocketBase
 RUN apk update && \
