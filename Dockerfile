@@ -8,8 +8,10 @@ RUN apk update && \
 # Setup working directory
 WORKDIR /app
 
-# Download and install PocketBase Linux binary
-RUN wget https://github.com/pocketbase/pocketbase/releases/download/v0.22.12/pocketbase_0.22.12_linux_amd64.zip -O /tmp/pb.zip && \
+# Download and install PocketBase Linux binary (auto-detects ARM64 or AMD64)
+RUN ARCH=$(uname -m) && \
+    if [ "$ARCH" = "aarch64" ]; then PB_ARCH="arm64"; else PB_ARCH="amd64"; fi && \
+    wget https://github.com/pocketbase/pocketbase/releases/download/v0.22.12/pocketbase_0.22.12_linux_${PB_ARCH}.zip -O /tmp/pb.zip && \
     unzip /tmp/pb.zip -d /tmp/pb_temp && \
     mv /tmp/pb_temp/pocketbase /usr/local/bin/pocketbase && \
     chmod +x /usr/local/bin/pocketbase && \
