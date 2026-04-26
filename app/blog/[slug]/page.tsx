@@ -11,12 +11,7 @@ interface BlogPostPageProps {
     params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-    const posts = getAllPosts();
-    return posts.map((post) => ({
-        slug: post.slug,
-    }));
-}
+
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
     const { slug } = await params;
