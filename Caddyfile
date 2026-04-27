@@ -1,4 +1,4 @@
-phylab.space, www.phylab.space {
+http://localhost, phylab.space, www.phylab.space {
     # Next.js 애플리케이션으로 웹 트래픽을 리버스 프록시
     reverse_proxy web:3000
 }
