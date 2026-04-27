@@ -1,3 +1,0 @@
-# ACHIEVEMENTS
-
-Contents for ACHIEVEMENTS...

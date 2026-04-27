@@ -1,3 +1,0 @@
-# PROJECTS
-
-Contents for PROJECTS...
