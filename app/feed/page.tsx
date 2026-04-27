@@ -326,8 +326,10 @@ export default function NewsPage() {
                         <div className="space-y-8">
                             <div className="sticky top-32">
                                 <div className="bg-gray-50 dark:bg-gray-900/50 p-6 border border-gray-200 dark:border-gray-800 rounded-lg">
-                                    <h3 className="text-sm font-sans uppercase tracking-widest text-gray-500 mb-6 font-bold">Manage Feeds</h3>
-
+                                    <h3 className="text-sm font-sans uppercase tracking-widest text-gray-500 mb-2 font-bold">Manage Feeds</h3>
+                                    <p className="text-xs text-gray-400 font-sans break-keep mb-6">
+                                        RSS 피드의 주소(URL)를 추가하면, 해당 페이지의 최신 소식들이 좌측 목록에 자동으로 업데이트됩니다.
+                                    </p>
                                     <div className="flex gap-2 mb-6">
                                         <input
                                             type="url"
