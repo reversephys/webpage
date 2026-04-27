@@ -42,6 +42,7 @@ export function Navbar() {
         { name: "Notice", href: "/notice" },
         {
             name: "POST",
+            href: "/feed",
             isDropdown: true,
             subItems: [
                 { name: "Feed", href: "/feed" },
@@ -53,6 +54,7 @@ export function Navbar() {
         { name: "Member", href: "/member" },
         {
             name: "Physical Lab",
+            href: "/about",
             isDropdown: true,
             subItems: [
                 { name: "About", href: "/about" },
@@ -88,7 +90,8 @@ export function Navbar() {
                             const isDropdownOpen = openDropdown === item.name;
                             return (
                                 <div key={item.name} className="relative h-full flex items-center">
-                                    <span
+                                    <Link
+                                        href={item.href || "#"}
                                         className={cn(
                                             "text-sm font-medium tracking-widest uppercase hover:text-gray-600 transition-colors cursor-pointer py-2",
                                             item.subItems?.some(s => pathname === s.href) ? "border-b-2 border-black dark:border-white" : ""
@@ -97,7 +100,7 @@ export function Navbar() {
                                         onMouseLeave={handleDropdownLeave}
                                     >
                                         {item.name}
-                                    </span>
+                                    </Link>
                                     {/* Dropdown Menu - appears on hover, has its own hover zone */}
                                     {isDropdownOpen && (
                                         <div
@@ -184,16 +187,23 @@ export function Navbar() {
                             return (
                                 <div key={item.name} className="flex flex-col space-y-4 border-b border-gray-100/50 dark:border-gray-800/50 pb-2">
                                     <div
-                                        className="flex justify-between items-center cursor-pointer"
-                                        onClick={() => setMobileExpanded(isExpanded ? null : item.name)}
+                                        className="flex justify-between items-center"
                                     >
-                                        <span className={cn(
+                                        <Link 
+                                            href={item.href || "#"}
+                                            onClick={() => setIsOpen(false)}
+                                            className={cn(
                                             "text-lg font-serif tracking-wide transition-all",
                                             isExpanded ? "text-blue-600 dark:text-blue-400 font-medium" : "text-gray-400 hover:ml-2"
                                         )}>
                                             {item.name}
-                                        </span>
-                                        {isExpanded ? <ChevronUp size={20} className="text-gray-500" /> : <ChevronDown size={20} className="text-gray-500" />}
+                                        </Link>
+                                        <button 
+                                            onClick={() => setMobileExpanded(isExpanded ? null : item.name)} 
+                                            className="p-2 -mr-2"
+                                        >
+                                            {isExpanded ? <ChevronUp size={20} className="text-gray-500" /> : <ChevronDown size={20} className="text-gray-500" />}
+                                        </button>
                                     </div>
                                     {isExpanded && (
                                         <div className="pl-4 flex flex-col space-y-3 pt-2">
