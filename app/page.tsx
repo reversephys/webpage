@@ -105,11 +105,7 @@ export default function Home() {
                         <div className="absolute inset-0 bg-neutral-900/10 group-hover:bg-neutral-900/0 transition-colors" />
                       </div>
                     )}
-                    {!post.thumbnail && (
-                      <div className="w-[120px] shrink-0 bg-gray-100 dark:bg-gray-800 relative overflow-hidden rounded-sm">
-                        <div className="absolute inset-0 bg-neutral-900/10 group-hover:bg-neutral-900/0 transition-colors" />
-                      </div>
-                    )}
+
                   </div>
                 </div>
               </Link>
