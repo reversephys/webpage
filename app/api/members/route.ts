@@ -5,16 +5,7 @@ export async function GET() {
     try {
         const pb = new PocketBase("http://127.0.0.1:8090");
 
-        // Log in as Admin using native fetch to bypass SDK version issues (pb.admins removed in JS SDK v0.23+)
-        const authRes = await fetch("http://127.0.0.1:8090/api/admins/auth-with-password", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ identity: "physicallab.in.seoul@gmail.com", password: "1234567890" })
-        });
-        const authData = await authRes.json();
-        if (!authRes.ok) throw new Error("Admin auth failed");
 
-        pb.authStore.save(authData.token, authData.admin);
 
         // Fetch users where permission_group is 1, 2, 3, or 4
         // Sort by permission_group ascending, then created descending
