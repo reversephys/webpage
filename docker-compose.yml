@@ -26,6 +26,8 @@ services:
     environment:
       # Use internal localhost for server-side Next.js data fetching
       - NEXT_PUBLIC_POCKETBASE_URL=http://127.0.0.1:8090
+      # Ensure Next.js binds to all network interfaces so Caddy can proxy to it
+      - HOSTNAME=0.0.0.0
     restart: unless-stopped
 
 volumes:
