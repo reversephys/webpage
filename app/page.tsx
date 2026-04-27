@@ -14,38 +14,8 @@ export default function Home() {
   return (
     <main className="min-h-screen font-sans bg-background text-foreground">
 
-      {/* Hero Section */}
-      <section className="relative h-screen w-full flex items-center justify-center overflow-hidden">
-        {/* Background Image */}
-        <div className="absolute inset-0 w-full h-full">
-          <Image
-            src="/hero.png"
-            alt="Physical Lab Hardware Hacking"
-            fill
-            className="object-cover brightness-50 contrast-125"
-            priority
-          />
-        </div>
-
-        {/* Content Overlay */}
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-6xl md:text-8xl lg:text-9xl font-eczar uppercase tracking-tighter mb-6 drop-shadow-2xl">
-            PHYSICAL LAB
-          </h1>
-          <p className="text-xl md:text-2xl font-serif italic tracking-widest uppercase opacity-90 mb-8">
-            Hardware Security
-          </p>
-          <div className="flex justify-center gap-4">
-            <Link href="/blog" className="px-8 py-3 bg-white text-black font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors">
-              Read Posts
-            </Link>
-          </div>
-        </div>
-      </section>
-
-
       {/* Design System Grid / Content Section */}
-      <section className="max-w-7xl mx-auto px-6 py-12">
+      <section className="max-w-7xl mx-auto px-6 pt-32 py-12">
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16 items-start">
 
