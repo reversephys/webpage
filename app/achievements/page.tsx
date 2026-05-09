@@ -1,6 +1,18 @@
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { getAchievementsContent } from "@/lib/achievements";
 
+// --- 가이드라인 ---
+// 1. Markdown: 'Contents/ACHIEVEMENTS/ACHIEVEMENTS.md' 파일을 생성하면 해당 내용이 가장 우선적으로 보여집니다.
+// 2. 배열 사용: 아래 배열(ACHIEVEMENTS)에 데이터를 추가하면 자동으로 스타일이 적용된 리스트가 표시됩니다.
+const ACHIEVEMENTS = [
+    {
+        date: "YYYY.MM",
+        title: "[실적 타이틀 입력, 예: 학회 발표 / 대회 수상 등]",
+        detail: "[필요한 경우 부가 설명 입력, 없으면 비워두세요.]"
+    },
+    // 추가할 때 위 객체 형식을 복사해서 계속 이어붙이세요.
+];
+
 export default async function AchievementsPage() {
     const content = getAchievementsContent();
 
@@ -12,15 +24,20 @@ export default async function AchievementsPage() {
                 {content ? (
                     <MarkdownRenderer content={content} />
                 ) : (
-                    <div className="text-lg md:text-xl leading-loose text-gray-700 dark:text-gray-300 space-y-8 first-letter:text-5xl first-letter:font-bold first-letter:float-left first-letter:mr-3">
-                        <p>
-                            We are a collective of researchers, engineers, and hackers dedicated to the art of hardware reverse engineering.
-                            In an increasingly connected world, the physical layer remains the final frontier of security.
-                        </p>
-                        <p>
-                            Our mission is to dissect, analyze, and understand the secure enclaves that protect the world's most critical data.
-                            From side-channel analysis to fault injection, we employ cutting-edge techniques to uncover vulnerabilities that software boundaries cannot hide.
-                        </p>
+                    <div className="space-y-8 mt-12 font-sans">
+                        {ACHIEVEMENTS.map((achievement, index) => (
+                            <div key={index} className="flex flex-col md:flex-row gap-2 md:gap-8 items-start md:items-baseline group">
+                                <span className="text-lg font-mono font-bold text-gray-400 dark:text-gray-500 whitespace-nowrap group-hover:text-foreground transition-colors">
+                                    {achievement.date}
+                                </span>
+                                <div>
+                                    <h3 className="text-xl font-bold">{achievement.title}</h3>
+                                    {achievement.detail && (
+                                        <p className="text-gray-600 dark:text-gray-400 mt-1">{achievement.detail}</p>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 )}
             </div>
