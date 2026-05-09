@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 import { CONTENTS_DIR } from "@/lib/notice";
 import { verifyAuth, unauthorizedResponse } from "@/lib/auth-server";
 
@@ -51,13 +52,12 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        // Save markdown file
-        // Filename: safeTitle.md or just Content.md?
-        // Blog uses title.md.
-        const mdPath = path.join(folderPath, `${safeTitle}.md`);
+        // Save markdown file with UUID name
+        const mdUUID = crypto.randomUUID();
+        const mdPath = path.join(folderPath, `${mdUUID}.md`);
         fs.writeFileSync(mdPath, content, "utf-8");
 
-        return NextResponse.json({ success: true, redirect: `/notice/${safeTitle}` });
+        return NextResponse.json({ success: true, redirect: `/notice/${mdUUID}` });
 
     } catch (error) {
         console.error("Publish error", error);

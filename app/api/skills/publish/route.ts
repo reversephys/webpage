@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 import { SKILLS_DIR } from "@/lib/skills";
 import { verifyAuth, unauthorizedResponse } from "@/lib/auth-server";
 
@@ -33,14 +34,27 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Invalid title." }, { status: 400 });
         }
 
-        const filePath = path.join(SKILLS_DIR, `${safeUserId}_${safeTitle}.md`);
+        const now = new Date();
+        const timestamp = now.getFullYear().toString() +
+            (now.getMonth() + 1).toString().padStart(2, "0") +
+            now.getDate().toString().padStart(2, "0") +
+            now.getHours().toString().padStart(2, "0") +
+            now.getMinutes().toString().padStart(2, "0") +
+            now.getSeconds().toString().padStart(2, "0");
+
+        const folderName = `${timestamp}_${safeUserId}_${safeTitle}`;
+        const folderPath = path.join(SKILLS_DIR, folderName);
 
         // Check if exists (prevent overwrite on create)
-        if (fs.existsSync(filePath)) {
+        if (fs.existsSync(folderPath)) {
             return NextResponse.json({ error: "Skill already exists." }, { status: 409 });
         }
 
-        fs.writeFileSync(filePath, content, "utf-8");
+        fs.mkdirSync(folderPath, { recursive: true });
+
+        const uuid = crypto.randomUUID();
+        const mdPath = path.join(folderPath, `${uuid}.md`);
+        fs.writeFileSync(mdPath, content, "utf-8");
 
         return NextResponse.json({ redirect: "/skills", success: true });
     } catch (error) {

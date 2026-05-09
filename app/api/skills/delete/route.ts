@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
-import { SKILLS_DIR } from "@/lib/skills";
+import { SKILLS_DIR, getSkillFolderName } from "@/lib/skills";
 import { verifyAuth, unauthorizedResponse } from "@/lib/auth-server";
 
 export async function POST(request: NextRequest) {
@@ -9,17 +9,22 @@ export async function POST(request: NextRequest) {
     if (!user) return unauthorizedResponse();
 
     try {
-        const { title } = await request.json();
+        const { slug } = await request.json();
 
-        if (!title) {
-            return NextResponse.json({ error: "Title is required." }, { status: 400 });
+        if (!slug) {
+            return NextResponse.json({ error: "Slug is required." }, { status: 400 });
         }
 
-        const filePath = path.join(SKILLS_DIR, `${title}.md`);
+        const folderName = getSkillFolderName(slug);
+        if (!folderName) {
+            return NextResponse.json({ error: "Skill not found." }, { status: 404 });
+        }
 
-        if (fs.existsSync(filePath)) {
-            const newPath = path.join(SKILLS_DIR, `_${title}.md`);
-            fs.renameSync(filePath, newPath);
+        const folderPath = path.join(SKILLS_DIR, folderName);
+
+        if (fs.existsSync(folderPath)) {
+            const newPath = path.join(SKILLS_DIR, `_${folderName}`);
+            fs.renameSync(folderPath, newPath);
         }
 
         return NextResponse.json({ redirect: "/skills", success: true });

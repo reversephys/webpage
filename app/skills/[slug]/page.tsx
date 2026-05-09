@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { getAllSkills, getSkillByTitle } from "@/lib/skills";
+import { getAllSkills, getSkillBySlug } from "@/lib/skills";
 import { getUserMap } from "@/lib/users";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { SkillActions } from "@/components/SkillActions";
@@ -14,16 +14,13 @@ interface SkillPageProps {
 export async function generateStaticParams() {
     const skills = getAllSkills();
     return skills.map((skill) => ({
-        slug: skill.title,
+        slug: skill.slug,
     }));
 }
 
 export default async function SkillPage({ params }: SkillPageProps) {
     const { slug } = await params;
-    // Decode slug because it might contain special chars or spaces
-    const title = decodeURIComponent(slug);
-
-    const skill = getSkillByTitle(title);
+    const skill = getSkillBySlug(slug);
     const userMap = await getUserMap();
     const authorName = skill?.userId ? (userMap.get(skill.userId) || "Unknown") : "Unknown";
 
@@ -44,7 +41,7 @@ export default async function SkillPage({ params }: SkillPageProps) {
                             Back to Skills
                         </Link>
 
-                        <SkillActions title={skill.title} authorId={skill.userId} />
+                        <SkillActions title={skill.title} slug={skill.slug || ""} authorId={skill.userId} />
                     </div>
 
                     {/* Header */}

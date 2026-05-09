@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
-import { SKILLS_DIR } from "@/lib/skills";
+import { SKILLS_DIR, getSkillFolderName } from "@/lib/skills";
 import { verifyAuth, unauthorizedResponse } from "@/lib/auth-server";
 
 function containsDangerousContent(content: string): boolean {
@@ -16,9 +16,9 @@ export async function POST(request: NextRequest) {
     if (!user) return unauthorizedResponse();
 
     try {
-        const { originalTitle, newTitle, content } = await request.json();
+        const { slug, newTitle, content } = await request.json();
 
-        if (!originalTitle || !newTitle || !content) {
+        if (!slug || !newTitle || !content) {
             return NextResponse.json({ error: "Missing fields." }, { status: 400 });
         }
 
@@ -27,39 +27,38 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ redirect: "/skills" }, { status: 200 });
         }
 
-        let oldPath = path.join(SKILLS_DIR, `${originalTitle}.md`);
-        // Allow fallback to dynamic matching if exact match not found
-        if (!fs.existsSync(oldPath)) {
-            const files = fs.readdirSync(SKILLS_DIR);
-            const matched = files.find(f => {
-                const base = f.replace(/\.md$/, "");
-                const match = base.match(/^([a-z0-9]{15})_(.+)$/i);
-                return match && match[2] === originalTitle;
-            });
-            if (matched) oldPath = path.join(SKILLS_DIR, matched);
-        }
-
-        // Sanitize new filename
-        const safeNewTitle = newTitle.replace(/[^a-zA-Z0-9\-\.\_\s]/g, "").trim();
-        const safeUserId = user.id.replace(/_/g, "");
-        const newPath = path.join(SKILLS_DIR, `${safeUserId}_${safeNewTitle}.md`);
-
-        if (!fs.existsSync(oldPath)) {
+        const oldFolderName = getSkillFolderName(slug);
+        if (!oldFolderName) {
             return NextResponse.json({ error: "Original skill not found." }, { status: 404 });
         }
 
-        // Rename if title changed
-        if (oldPath !== newPath) {
-            if (fs.existsSync(newPath)) {
-                return NextResponse.json({ error: "New title already exists." }, { status: 409 });
+        const oldFolderPath = path.join(SKILLS_DIR, oldFolderName);
+        const mdPath = path.join(oldFolderPath, `${slug}.md`);
+
+        // If title changed, rename the folder
+        const match = oldFolderName.match(/^(\d{14})_([^_]+)_(.+)$/i);
+        if (match) {
+            const timestamp = match[1];
+            const userId = match[2];
+            const safeNewTitle = newTitle.replace(/[^a-zA-Z0-9\-\.\_\s]/g, "").trim();
+            const newFolderName = `${timestamp}_${userId}_${safeNewTitle}`;
+            const newFolderPath = path.join(SKILLS_DIR, newFolderName);
+
+            if (oldFolderName !== newFolderName) {
+                if (fs.existsSync(newFolderPath)) {
+                    return NextResponse.json({ error: "New title already exists." }, { status: 409 });
+                }
+                fs.renameSync(oldFolderPath, newFolderPath);
+                // write to new path
+                fs.writeFileSync(path.join(newFolderPath, `${slug}.md`), content, "utf-8");
+            } else {
+                fs.writeFileSync(mdPath, content, "utf-8");
             }
-            fs.renameSync(oldPath, newPath);
+        } else {
+            fs.writeFileSync(mdPath, content, "utf-8");
         }
 
-        // Write content
-        fs.writeFileSync(newPath, content, "utf-8");
-
-        return NextResponse.json({ redirect: "/skills", success: true });
+        return NextResponse.json({ redirect: `/skills/${slug}`, success: true });
     } catch (error) {
         console.error("Edit error:", error);
         return NextResponse.json({ error: "Internal server error." }, { status: 500 });

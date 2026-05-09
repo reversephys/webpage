@@ -29,7 +29,7 @@ const TOOLBAR_ACTIONS = [
 function SkillsWriteEditor() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const editTitle = searchParams.get("edit");
+    const editSlug = searchParams.get("edit");
     const { user, loading: authLoading } = useAuth();
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -48,13 +48,13 @@ function SkillsWriteEditor() {
 
     // Load existing skill data
     useEffect(() => {
-        if (!user || !editTitle) return;
+        if (!user || !editSlug) return;
 
         (async () => {
             try {
                 const res = await fetch("/api/skills/list");
                 const skills = await res.json();
-                const skill = skills.find((s: any) => s.title === editTitle);
+                const skill = skills.find((s: any) => s.slug === editSlug);
                 if (skill) {
                     setTitle(skill.title);
                     setContent(skill.content);
@@ -65,7 +65,7 @@ function SkillsWriteEditor() {
                 setError("Failed to load skill.");
             }
         })();
-    }, [editTitle, user]);
+    }, [editSlug, user]);
 
     const insertToolbar = useCallback((action: typeof TOOLBAR_ACTIONS[0]) => {
         const textarea = textareaRef.current;
@@ -110,9 +110,9 @@ function SkillsWriteEditor() {
         setError(null);
 
         try {
-            const url = editTitle ? "/api/skills/edit" : "/api/skills/publish";
-            const body = editTitle
-                ? { originalTitle: editTitle, newTitle: title, content }
+            const url = editSlug ? "/api/skills/edit" : "/api/skills/publish";
+            const body = editSlug
+                ? { slug: editSlug, newTitle: title, content }
                 : { title, content };
 
             const res = await fetch(url, {
@@ -151,7 +151,7 @@ function SkillsWriteEditor() {
                 </Link>
 
                 <div className="flex justify-between items-center mb-12">
-                    {!editTitle && (
+                    {!editSlug && (
                         <h1 className="text-5xl md:text-7xl font-eczar tracking-tight">
                             New Skill
                         </h1>
@@ -232,7 +232,7 @@ function SkillsWriteEditor() {
                         disabled={publishing}
                         className="px-8 py-3 bg-foreground text-background font-sans uppercase tracking-widest text-sm hover:opacity-90 disabled:opacity-50 transition-opacity"
                     >
-                        {publishing ? "Saving..." : editTitle ? "Update Skill" : "Publish Skill"}
+                        {publishing ? "Saving..." : editSlug ? "Update Skill" : "Publish Skill"}
                     </button>
                 </div>
             </div>

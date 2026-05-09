@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import crypto from "crypto";
 import { CONTENTS_DIR } from "@/lib/staff";
 import { verifyAuth, unauthorizedResponse } from "@/lib/auth-server";
 
@@ -19,8 +20,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        // Generate folder name: YYYYMMDDHHMMSS_Tag_Title
-        // Simplify to just YYYYMMDDHHMMSS_Tag_Title to ensure uniqueness and order
+        // Generate folder name: YYYYMMDDHHMMSS_userId_Tag_Title
         const now = new Date();
         const timestamp = now.getFullYear().toString() +
             (now.getMonth() + 1).toString().padStart(2, "0") +
@@ -31,7 +31,6 @@ export async function POST(request: NextRequest) {
 
         const safeTitle = title.replace(/[^a-zA-Z0-9가-힣\s-]/g, "").trim().replace(/\s+/g, "-");
         const safeTag = tag.replace(/[^a-zA-Z0-9가-힣\s-]/g, "").trim().replace(/\s+/g, "-");
-        // We ensure userId has no underscores since `sanitizeFolderName` in blog strips them. We will just strip them here too.
         const safeUserId = user.id.replace(/_/g, "");
 
         const folderName = `${timestamp}_${safeUserId}_${safeTag}_${safeTitle}`;
@@ -53,13 +52,12 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        // Save markdown file
-        // Filename: safeTitle.md or just Content.md?
-        // Blog uses title.md.
-        const mdPath = path.join(folderPath, `${safeTitle}.md`);
+        // Save markdown file with UUID name
+        const mdUUID = crypto.randomUUID();
+        const mdPath = path.join(folderPath, `${mdUUID}.md`);
         fs.writeFileSync(mdPath, content, "utf-8");
 
-        return NextResponse.json({ success: true, redirect: `/staff/${safeTitle}` });
+        return NextResponse.json({ success: true, redirect: `/staff/${mdUUID}` });
 
     } catch (error) {
         console.error("Publish error", error);

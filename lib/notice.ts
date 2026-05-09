@@ -124,7 +124,7 @@ export function getAllPosts(): NoticePost[] {
         const mdPath = path.join(folderPath, mdFile);
         const content = fs.readFileSync(mdPath, "utf-8");
 
-        const slug = parsed.title;
+        const slug = mdFile.replace(/\.md$/, "");
         const thumbnail = findThumbnail(folderPath, slug);
         const excerpt = extractExcerpt(content);
 
@@ -156,35 +156,33 @@ export function getPostBySlug(slug: string): NoticePost | null {
     for (const folder of folders) {
         const parsed = parseFolderName(folder.name);
         if (!parsed) continue;
-        if (parsed.title !== slug) continue;
 
         const folderPath = path.join(CONTENTS_DIR, folder.name);
-        const files = fs.readdirSync(folderPath);
-        const mdFile = files.find((f) => f.endsWith(".md"));
-        if (!mdFile) continue;
+        const mdPath = path.join(folderPath, `${slug}.md`);
 
-        const mdPath = path.join(folderPath, mdFile);
-        const rawContent = fs.readFileSync(mdPath, "utf-8");
+        if (fs.existsSync(mdPath)) {
+            const rawContent = fs.readFileSync(mdPath, "utf-8");
 
-        // Replace relative image references with API route
-        const content = rawContent.replace(
-            /!\[([^\]]*)\]\(images\/([^)]+)\)/g,
-            `![$1](/api/notice-image/${slug}/$2)`
-        );
+            // Replace relative image references with API route
+            const content = rawContent.replace(
+                /!\[([^\]]*)\]\(images\/([^)]+)\)/g,
+                `![$1](/api/notice-image/${slug}/$2)`
+            );
 
-        const thumbnail = findThumbnail(folderPath, slug);
-        const excerpt = extractExcerpt(rawContent);
+            const thumbnail = findThumbnail(folderPath, slug);
+            const excerpt = extractExcerpt(rawContent);
 
-        return {
-            slug,
-            title: parsed.title.replace(/-/g, " "),
-            date: formatDate(parsed.rawDate),
-            rawDate: parsed.rawDate,
-            tag: parsed.tag,
-            excerpt,
-            thumbnail,
-            content,
-        };
+            return {
+                slug,
+                title: parsed.title.replace(/-/g, " "),
+                date: formatDate(parsed.rawDate),
+                rawDate: parsed.rawDate,
+                tag: parsed.tag,
+                excerpt,
+                thumbnail,
+                content,
+            };
+        }
     }
 
     return null;
@@ -209,7 +207,10 @@ export function getPostFolderName(slug: string): string | null {
     for (const folder of folders) {
         const parsed = parseFolderName(folder.name);
         if (!parsed) continue;
-        if (parsed.title === slug) return folder.name;
+        const mdPath = path.join(CONTENTS_DIR, folder.name, `${slug}.md`);
+        if (fs.existsSync(mdPath)) {
+            return folder.name;
+        }
     }
     return null;
 }

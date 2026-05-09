@@ -9,6 +9,7 @@ interface Skill {
     title: string;
     content: string;
     authorName?: string;
+    slug: string;
 }
 
 export default function SkillsPage() {
@@ -89,8 +90,8 @@ export default function SkillsPage() {
                     <div className="grid gap-3">
                         {filtered.map((skill) => (
                             <Link
-                                key={skill.title}
-                                href={`/skills/${encodeURIComponent(skill.title)}`}
+                                key={skill.slug}
+                                href={`/skills/${skill.slug}`}
                                 className="block border border-gray-200 dark:border-gray-800 p-4 hover:border-gray-400 dark:hover:border-gray-600 transition-colors group bg-white dark:bg-black/20"
                             >
                                 <div className="flex justify-between items-center">

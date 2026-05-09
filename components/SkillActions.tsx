@@ -8,10 +8,11 @@ import { useAuth } from "@/components/AuthContext";
 
 interface SkillActionsProps {
     title: string;
+    slug: string;
     authorId?: string;
 }
 
-export function SkillActions({ title, authorId }: SkillActionsProps) {
+export function SkillActions({ title, slug, authorId }: SkillActionsProps) {
     const router = useRouter();
     const [deleting, setDeleting] = useState(false);
     const { user } = useAuth();
@@ -27,7 +28,7 @@ export function SkillActions({ title, authorId }: SkillActionsProps) {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${pb.authStore.token}`,
                 },
-                body: JSON.stringify({ title }),
+                body: JSON.stringify({ slug }),
             });
 
             const data = await res.json();
@@ -44,7 +45,7 @@ export function SkillActions({ title, authorId }: SkillActionsProps) {
     return (
         <div className="flex gap-3">
             <Link
-                href={`/api/skills/download?title=${encodeURIComponent(title)}`}
+                href={`/api/skills/download?slug=${encodeURIComponent(slug)}`}
                 className="text-xs font-sans uppercase tracking-widest border border-gray-300 dark:border-gray-600 px-4 py-1.5 hover:bg-foreground hover:text-background transition-colors"
             >
                 Download
@@ -52,7 +53,7 @@ export function SkillActions({ title, authorId }: SkillActionsProps) {
             {user && user.id === authorId && (
                 <>
                     <Link
-                        href={`/skills/write?edit=${encodeURIComponent(title)}`}
+                        href={`/skills/write?edit=${encodeURIComponent(slug)}`}
                         className="text-xs font-sans uppercase tracking-widest border border-gray-300 dark:border-gray-600 px-4 py-1.5 hover:bg-foreground hover:text-background transition-colors"
                     >
                         Edit

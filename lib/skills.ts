@@ -6,6 +6,7 @@ export interface Skill {
     content: string;
     userId?: string;
     authorName?: string;
+    slug?: string;
 }
 
 const SKILLS_DIR = path.join(process.cwd(), "Contents", "SKILLS");
@@ -18,49 +19,92 @@ if (!fs.existsSync(SKILLS_DIR)) {
 export function getAllSkills(): Skill[] {
     if (!fs.existsSync(SKILLS_DIR)) return [];
 
-    const files = fs.readdirSync(SKILLS_DIR)
-        .filter((f) => f.endsWith(".md") && !f.startsWith("_"));
+    const folders = fs.readdirSync(SKILLS_DIR, { withFileTypes: true })
+        .filter((d) => d.isDirectory());
 
-    return files.map((file) => {
-        const filePath = path.join(SKILLS_DIR, file);
-        const content = fs.readFileSync(filePath, "utf-8");
-        const fileBase = file.replace(/\.md$/, "");
+    const skills: Skill[] = [];
 
-        // Attempt to extract userId (PocketBase IDs are 15 chars alphanumeric)
-        const match = fileBase.match(/^([a-z0-9]{15})_(.+)$/i);
-        let userId = "";
-        let title = fileBase;
+    for (const folder of folders) {
+        const folderPath = path.join(SKILLS_DIR, folder.name);
+        const files = fs.readdirSync(folderPath);
+        const mdFile = files.find((f) => f.endsWith(".md"));
+        if (!mdFile) continue;
 
-        if (match) {
-            userId = match[1];
-            title = match[2];
+        const slug = mdFile.replace(/\.md$/, "");
+        const content = fs.readFileSync(path.join(folderPath, mdFile), "utf-8");
+
+        // Format: YYYYMMDDHHMMSS_userId_title
+        const match = folder.name.match(/^(\d{14})_([^_]+)_(.+)$/i);
+        if (!match) continue;
+
+        const userId = match[2];
+        const title = match[3].replace(/-/g, " ");
+
+        skills.push({ title, content, userId, slug });
+    }
+    return skills;
+}
+
+export function getSkillBySlug(slug: string): Skill | null {
+    if (!fs.existsSync(SKILLS_DIR)) return null;
+
+    const folders = fs.readdirSync(SKILLS_DIR, { withFileTypes: true })
+        .filter((d) => d.isDirectory());
+
+    for (const folder of folders) {
+        const mdPath = path.join(SKILLS_DIR, folder.name, `${slug}.md`);
+        if (!fs.existsSync(mdPath)) continue;
+
+        const match = folder.name.match(/^(\d{14})_([^_]+)_(.+)$/i);
+        if (!match) continue;
+
+        const title = match[3].replace(/-/g, " ");
+        const content = fs.readFileSync(mdPath, "utf-8");
+        const userId = match[2];
+
+        return { title, content, userId, slug };
+    }
+    return null;
+}
+
+export function getSkillFolderName(slug: string): string | null {
+    if (!fs.existsSync(SKILLS_DIR)) return null;
+
+    const folders = fs.readdirSync(SKILLS_DIR, { withFileTypes: true })
+        .filter((d) => d.isDirectory());
+
+    for (const folder of folders) {
+        const mdPath = path.join(SKILLS_DIR, folder.name, `${slug}.md`);
+        if (fs.existsSync(mdPath)) {
+            return folder.name;
         }
-
-        return { title, content, userId };
-    });
+    }
+    return null;
 }
 
 export function getSkillByTitle(title: string): Skill | null {
     if (!fs.existsSync(SKILLS_DIR)) return null;
 
-    const files = fs.readdirSync(SKILLS_DIR)
-        .filter((f) => f.endsWith(".md") && !f.startsWith("_"));
+    const folders = fs.readdirSync(SKILLS_DIR, { withFileTypes: true })
+        .filter((d) => d.isDirectory());
 
-    for (const file of files) {
-        const fileBase = file.replace(/\.md$/, "");
-        const match = fileBase.match(/^([a-z0-9]{15})_(.+)$/i);
-        let currentTitle = fileBase;
-        let userId = "";
+    for (const folder of folders) {
+        // Format: YYYYMMDDHHMMSS_userId_title
+        const match = folder.name.match(/^(\d{14})_([^_]+)_(.+)$/i);
+        if (!match) continue;
 
-        if (match) {
-            userId = match[1];
-            currentTitle = match[2];
-        }
-
+        const currentTitle = match[3].replace(/-/g, " ");
         if (currentTitle === title) {
-            const filePath = path.join(SKILLS_DIR, file);
-            const content = fs.readFileSync(filePath, "utf-8");
-            return { title, content, userId };
+            const folderPath = path.join(SKILLS_DIR, folder.name);
+            const files = fs.readdirSync(folderPath);
+            const mdFile = files.find((f) => f.endsWith(".md"));
+            if (!mdFile) continue;
+
+            const slug = mdFile.replace(/\.md$/, "");
+            const content = fs.readFileSync(path.join(folderPath, mdFile), "utf-8");
+            const userId = match[2];
+
+            return { title, content, userId, slug };
         }
     }
     return null;

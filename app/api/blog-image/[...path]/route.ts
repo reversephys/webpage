@@ -27,12 +27,13 @@ export async function GET(
     const slug = segments[0];
     const filename = segments.slice(1).join("/");
 
-    // Find the folder matching this slug
-    const folders = fs.readdirSync(CONTENTS_DIR);
+    // Find the folder matching this slug (slug is now the md file name)
+    const folders = fs.readdirSync(CONTENTS_DIR, { withFileTypes: true });
     const matchingFolder = folders.find((f) => {
-        const match = f.match(/^\d{14}_[^_]+_(.+)$/);
-        return match && match[1] === slug;
-    });
+        if (!f.isDirectory()) return false;
+        const mdPath = path.join(CONTENTS_DIR, f.name, `${slug}.md`);
+        return fs.existsSync(mdPath);
+    })?.name;
 
     if (!matchingFolder) {
         return NextResponse.json({ error: "Post not found" }, { status: 404 });
