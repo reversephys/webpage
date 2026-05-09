@@ -3,7 +3,14 @@
     "link": "https://hackaday.com/2026/04/25/quantum-computers-are-not-a-threat-to-128-bit-symmetric-keys/",
     "title": "Quantum Computers Are Not a Threat to 128-bit Symmetric Keys",
     "snippet": "A lot has been made about a post-quantum computer future in which traditional encryption methods have suddenly been rendered obsolete. With this terrifying idea in mind, it’s reassuring to see …read more",
-    "clicks": 2,
-    "lastClickedAt": "2026-04-27T17:04:34.284Z"
+    "clicks": 7,
+    "lastClickedAt": "2026-05-07T08:29:27.450Z"
+  },
+  {
+    "link": "https://starlabs.sg/blog/2025/11-hex-advent-2025-rules-information/",
+    "title": "HEX ADVENT 2025: Rules & Information",
+    "snippet": "Information\nThis is a solo CTF event open to women residing in Singapore or Malaysia.\nTo register and be eligible for the prizes:\nRegister on CTFd, and select the “eligible” bracket.\nConfirm your eligibility by filling in the Google Form.\nThe flag format is described by this regex: /^HEX{.*}$/\nThere are a total of 12 challenges. One challenge will be released each day at 09:00 SGT within the period of 1 December 2025 to 12 December 2025. All challenges will be announced on the STAR Labs blog, and the challenges can be accessed through the CTFd platform within the period of 1 December 2025, 09:00 SGT to 31 December 2025, 23:59 SGT.",
+    "clicks": 1,
+    "lastClickedAt": "2026-05-03T04:30:04.622Z"
   }
 ]
