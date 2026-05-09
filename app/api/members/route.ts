@@ -17,7 +17,7 @@ export async function GET() {
         const members = records.map(r => ({
             id: r.id,
             name: r.name || r.username,
-            avatar: r.avatar ? `http://127.0.0.1:8090/api/files/_pb_users_auth_/${r.id}/${r.avatar}` : null,
+            avatar: r.avatar ? `/api/files/_pb_users_auth_/${r.id}/${r.avatar}` : null,
             introduction: r.introduction || "",
             permission_group: r.permission_group
         }));

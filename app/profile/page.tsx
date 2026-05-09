@@ -441,7 +441,7 @@ export default function ProfilePage() {
                             {!isEditingAvatar ? (
                                 <div className="mt-2 text-lg sm:text-xl font-bold tracking-wider truncate">
                                     {profile?.avatar ? (
-                                        <img src={`http://127.0.0.1:8090/api/files/${profile.collectionId}/${profile.id}/${profile.avatar}`} alt="Avatar" className="w-20 h-20 rounded-full object-cover border border-gray-200 dark:border-gray-700" />
+                                        <img src={`/api/files/${profile.collectionId}/${profile.id}/${profile.avatar}`} alt="Avatar" className="w-20 h-20 rounded-full object-cover border border-gray-200 dark:border-gray-700" />
                                     ) : (
                                         <div className="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center border border-gray-300 dark:border-gray-700 shrink-0">
                                             <span className="text-gray-400 text-sm font-normal">No img</span>
