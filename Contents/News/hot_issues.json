@@ -19,5 +19,12 @@
     "snippet": "CVE: CVE-2025-23096\nAffected Versions: Samsung Galaxy S24+ (samsung/e2sxxx/e2s:14/UP1A.231005.007/S926BXXS3AXGD:user/release-keys); Samsung Exynos 1280, 2200, 1380, 1480, 2400\nCVSS3.1: 7.8 (High) — CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H\nSummary\nProduct\n          Samsung Exynos NPU Driver\n      \nVendor\n          Samsung\n      \nSeverity\n          High — a local attacker within untrusted_app SELinux context may exploit this to achieve local privilege escalation\n      \nAffected Versions\n          Samsung Galaxy S24+ (Android 14); Exynos 1280, 2200, 1380, 1480, 2400\n      \nTested Versions\n          Samsung Galaxy S24+ (S926BXXS3AXGD)\n      \nCVE Identifier\n          CVE-2025-23096\n      \nCVE Description\n          A double free in the Samsung Exynos mobile processor NPU driver leads to privilege escalation\n      \nCWE Classification(s)\n          CWE-415: Double Free\n      \nCVSS3.1 Scoring System\nBase Score: 7.8 (High)\nVector String: CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
     "clicks": 1,
     "lastClickedAt": "2026-05-09T17:14:54.779Z"
+  },
+  {
+    "link": "https://starlabs.sg/blog/2026/04-three-bugs-walk-into-a-pdf-prototype-pollution-served-cold/",
+    "title": "Three Bugs Walk Into a PDF: Prototype Pollution, Served Cold",
+    "snippet": "TL;DR\nIn April 2026, Adobe disclosed three critical security issues (CVE-2026-34621,CVE-2026-34622,CVE-2026-34626) affecting Acrobat DC, Acrobat Reader DC, and Acrobat 2024. According to Adobe’s advisories, these vulnerabilities could allow attackers to execute arbitrary code and leak user information through a malicious PDF file via a prototype pollution chain and they were reportedly exploited in the wild. The initial issue, CVE-2026-34621, was first identified by EXPMON.\nWhile several reports have already covered the threat intelligence and malware-analysis aspects of the ITW samples, we were more interested in the underlying vulnerabilities themselves and how Adobe patched them.",
+    "clicks": 1,
+    "lastClickedAt": "2026-05-09T18:56:52.625Z"
   }
 ]

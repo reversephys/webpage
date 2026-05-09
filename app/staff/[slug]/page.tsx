@@ -40,7 +40,8 @@ export default async function StaffPostPage({ params }: StaffPostPageProps) {
             </main>
         );
     }
-            <main className="min-h-screen bg-background pt-32 pb-20 px-6 font-serif">
+    return (
+        <main className="min-h-screen bg-background pt-32 pb-20 px-6 font-serif">
                 <article className="max-w-3xl mx-auto">
                     {/* Top bar: Back link + Actions */}
                     <div className="flex items-center justify-between mb-12">
