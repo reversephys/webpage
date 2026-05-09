@@ -1,6 +1,8 @@
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { getAchievementsContent } from "@/lib/achievements";
 
+export const dynamic = 'force-dynamic';
+
 // --- 가이드라인 ---
 // 1. Markdown: 'Contents/ACHIEVEMENTS/ACHIEVEMENTS.md' 파일을 생성하면 해당 내용이 가장 우선적으로 보여집니다.
 // 2. 배열 사용: 아래 배열(ACHIEVEMENTS)에 데이터를 추가하면 자동으로 스타일이 적용된 리스트가 표시됩니다.

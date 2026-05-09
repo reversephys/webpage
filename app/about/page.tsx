@@ -3,6 +3,8 @@ import Link from "next/link";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { getAboutContent } from "@/lib/about";
 
+export const dynamic = 'force-dynamic';
+
 export default async function AboutPage() {
     const content = getAboutContent();
 
