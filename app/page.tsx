@@ -4,11 +4,27 @@ import { ArrowRight } from "lucide-react";
 import HotIssues from "@/components/HotIssues";
 import { getLatestPosts } from "@/lib/blog";
 import { getTopIssues } from "@/lib/news-tracking";
+import { getServerUserFromCookie } from "@/lib/auth-server";
 
 export const dynamic = 'force-dynamic'; // Ensure hot issues are fresh
 
 export default async function Home() {
-  const latestPosts = await getLatestPosts(2);
+  const user = await getServerUserFromCookie();
+  const permGroup = user?.permission_group !== undefined ? Number(user.permission_group) : -1;
+  const hasAccess = permGroup >= 3;
+
+  // Fetch more posts to filter and show the latest 2 public ones for guests
+  let latestPosts = await getLatestPosts(10);
+  
+  if (!hasAccess) {
+    latestPosts = latestPosts.filter(post => 
+      post.tag.split(",").map(t => t.trim()).includes("public")
+    );
+  }
+  
+  // Show only top 2 after filtering
+  latestPosts = latestPosts.slice(0, 2);
+
   const topIssues = getTopIssues(2);
 
   return (
