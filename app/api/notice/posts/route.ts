@@ -4,6 +4,6 @@ import { getAllPosts } from "@/lib/notice";
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-    const posts = getAllPosts();
+    const posts = await getAllPosts();
     return NextResponse.json(posts);
 }

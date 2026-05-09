@@ -19,7 +19,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Restore session from PocketBase authStore
+        // Restore session from cookie (pb_auth) if pb.authStore is empty
+        if (!pb.authStore.isValid && typeof document !== "undefined") {
+            const cookieToken = document.cookie
+                .split("; ")
+                .find(row => row.startsWith("pb_auth="))
+                ?.split("=")[1];
+
+            if (cookieToken) {
+                pb.authStore.save(cookieToken, null);
+            }
+        }
+
         const currentUser = getCurrentUser();
         setUser(currentUser);
         setLoading(false);

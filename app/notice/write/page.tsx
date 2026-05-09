@@ -292,7 +292,6 @@ function NoticeWriteEditor() {
                         value={tag}
                         onChange={(e) => setTag(e.target.value)}
                         placeholder="e.g. Announcement, Equipment, Schedule..."
-                        disabled={!!editSlug}
                         className="w-full px-4 py-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-base font-sans focus:outline-none focus:border-gray-400 dark:focus:border-gray-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     />
                 </div>

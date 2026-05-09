@@ -1,12 +1,13 @@
 import fs from "fs";
 import path from "path";
+import { getTagsForPosts } from "./tags";
 
 export interface BlogPost {
     slug: string;
     title: string;
     date: string;        // formatted date string e.g. "Feb 10, 2026"
     rawDate: string;     // yyyymmdd
-    tag: string;
+    tag: string;         // Primary tag or comma-separated tags
     userId: string;
     excerpt: string;
     thumbnail: string | null;  // API route path to thumbnail image
@@ -111,13 +112,14 @@ function findThumbnail(folderPath: string, slug: string): string | null {
 /**
  * Get all blog posts, sorted by date descending
  */
-export function getAllPosts(): BlogPost[] {
+export async function getAllPosts(): Promise<BlogPost[]> {
     if (!fs.existsSync(CONTENTS_DIR)) return [];
 
     const folders = fs.readdirSync(CONTENTS_DIR, { withFileTypes: true })
         .filter((d) => d.isDirectory());
 
     const posts: BlogPost[] = [];
+    const slugs: string[] = [];
 
     for (const folder of folders) {
         const parsed = parseFolderName(folder.name);
@@ -137,6 +139,7 @@ export function getAllPosts(): BlogPost[] {
         const thumbnail = findThumbnail(folderPath, slug);
         const excerpt = extractExcerpt(content);
 
+        slugs.push(slug);
         posts.push({
             slug,
             title: parsed.title.replace(/-/g, " "),
@@ -149,6 +152,19 @@ export function getAllPosts(): BlogPost[] {
         });
     }
 
+    // Fetch tags from PocketBase
+    try {
+        const tagsMap = await getTagsForPosts(slugs);
+        for (const post of posts) {
+            if (tagsMap[post.slug] && tagsMap[post.slug].length > 0) {
+                // Join tags with comma for display in list view
+                post.tag = tagsMap[post.slug].join(", ");
+            }
+        }
+    } catch (e) {
+        console.error("Failed to fetch tags for list view:", e);
+    }
+
     // Sort by date descending
     posts.sort((a, b) => b.rawDate.localeCompare(a.rawDate));
     return posts;
@@ -157,7 +173,7 @@ export function getAllPosts(): BlogPost[] {
 /**
  * Get a single post by slug (title portion of folder name)
  */
-export function getPostBySlug(slug: string): BlogPost | null {
+export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
     if (!fs.existsSync(CONTENTS_DIR)) return null;
 
     const folders = fs.readdirSync(CONTENTS_DIR, { withFileTypes: true })
@@ -182,12 +198,23 @@ export function getPostBySlug(slug: string): BlogPost | null {
             const thumbnail = findThumbnail(folderPath, slug);
             const excerpt = extractExcerpt(rawContent);
 
+            // Fetch tags from PocketBase
+            let tag = parsed.tag;
+            try {
+                const tagsMap = await getTagsForPosts([slug]);
+                if (tagsMap[slug] && tagsMap[slug].length > 0) {
+                    tag = tagsMap[slug].join(", ");
+                }
+            } catch (e) {
+                console.error("Failed to fetch tags for post view:", e);
+            }
+
             return {
                 slug,
                 title: parsed.title.replace(/-/g, " "),
                 date: formatDate(parsed.rawDate),
                 rawDate: parsed.rawDate,
-                tag: parsed.tag,
+                tag,
                 userId: parsed.userId,
                 excerpt,
                 thumbnail,
@@ -202,8 +229,9 @@ export function getPostBySlug(slug: string): BlogPost | null {
 /**
  * Get latest N posts
  */
-export function getLatestPosts(count: number): BlogPost[] {
-    return getAllPosts().slice(0, count);
+export async function getLatestPosts(count: number): Promise<BlogPost[]> {
+    const all = await getAllPosts();
+    return all.slice(0, count);
 }
 
 /**

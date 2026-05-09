@@ -6,7 +6,7 @@ export async function GET(
     { params }: { params: Promise<{ slug: string }> }
 ) {
     const slug = (await params).slug;
-    const post = getPostBySlug(slug);
+    const post = await getPostBySlug(slug);
 
     if (!post) {
         return NextResponse.json({ error: "Post not found" }, { status: 404 });

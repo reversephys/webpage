@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# pocketbase data (binary files, should not be tracked)
+backend/pb_data/data.db-shm
+backend/pb_data/data.db-wal
+backend/pb_data/logs.db
+backend/pb_data/logs.db-shm
+backend/pb_data/logs.db-wal

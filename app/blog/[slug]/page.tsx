@@ -1,21 +1,21 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { getPostBySlug, getAllPosts } from "@/lib/blog";
+import { getPostBySlug } from "@/lib/blog";
 import { getUserMap } from "@/lib/users";
 import { getServerUserFromCookie } from "@/lib/auth-server";
+import { getTagsForPosts } from "@/lib/tags";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { PostActions } from "@/components/PostActions";
+import { CommentsList } from "@/components/CommentsList";
 
 interface BlogPostPageProps {
     params: Promise<{ slug: string }>;
 }
 
-
-
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
     const { slug } = await params;
-    const post = getPostBySlug(slug);
+    const post = await getPostBySlug(slug);
     const userMap = await getUserMap();
     const authorName = post?.userId ? (userMap.get(post.userId) || "Unknown") : "Unknown";
 
@@ -23,8 +23,10 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         notFound();
     }
 
+    const tags = post.tag.split(",").map(t => t.trim()).filter(Boolean);
+    const isPublic = tags.includes("public");
+
     const user = await getServerUserFromCookie();
-    const isPublic = post.tag === "public";
     const permGroup = user?.permission_group !== undefined ? Number(user.permission_group) : -1;
     const hasAccess = permGroup >= 3;
 
@@ -57,12 +59,16 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
                 {/* Post header */}
                 <header className="mb-12 text-center">
-                    <div className="flex justify-center items-center gap-4 mb-6 text-xs tracking-[0.2em] text-gray-400 uppercase font-sans">
+                    <div className="flex flex-wrap justify-center items-center gap-x-4 gap-y-2 mb-6 text-xs tracking-[0.2em] text-gray-400 uppercase font-sans">
                         <span>{post.date}</span>
-                        <span className="w-8 h-[1px] bg-gray-200 dark:bg-gray-700" />
+                        <span className="w-8 h-[1px] bg-gray-200 dark:bg-gray-700 hidden sm:inline-block" />
                         <span>BY {authorName}</span>
-                        <span className="w-8 h-[1px] bg-gray-200 dark:bg-gray-700" />
-                        <span>{post.tag}</span>
+                        <span className="w-8 h-[1px] bg-gray-200 dark:bg-gray-700 hidden sm:inline-block" />
+                        <div className="flex flex-wrap gap-2">
+                            {tags.map(t => (
+                                <span key={t} className="px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded-sm">{t}</span>
+                            ))}
+                        </div>
                     </div>
                     <h1 className="text-4xl md:text-6xl font-bold leading-tight mb-8">
                         {post.title}
@@ -71,7 +77,11 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
                 {/* Markdown content */}
                 <MarkdownRenderer content={post.content || ""} />
+
+                {/* Comments section */}
+                <CommentsList postUuid={post.slug} />
             </article>
         </main>
     );
 }
+

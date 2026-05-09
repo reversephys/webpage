@@ -7,8 +7,8 @@ import { getTopIssues } from "@/lib/news-tracking";
 
 export const dynamic = 'force-dynamic'; // Ensure hot issues are fresh
 
-export default function Home() {
-  const latestPosts = getLatestPosts(2);
+export default async function Home() {
+  const latestPosts = await getLatestPosts(2);
   const topIssues = getTopIssues(2);
 
   return (

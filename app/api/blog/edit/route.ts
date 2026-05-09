@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
+import PocketBase from "pocketbase";
 import { getPostFolderName, CONTENTS_DIR } from "@/lib/blog";
 import { verifyAuth, unauthorizedResponse } from "@/lib/auth-server";
 
@@ -83,16 +84,49 @@ export async function POST(request: NextRequest) {
             processedContent = processedContent.replace(regex, uuidName);
         }
 
-        // Find the existing .md file and overwrite it
+        // Save markdown file
         const files = fs.readdirSync(folderPath);
         const mdFile = files.find((f) => f.endsWith(".md"));
 
         if (mdFile) {
             fs.writeFileSync(path.join(folderPath, mdFile), processedContent, "utf-8");
         } else {
-            // Create new md file with UUID name
             const uuid = generateUUID();
             fs.writeFileSync(path.join(folderPath, `${uuid}.md`), processedContent, "utf-8");
+        }
+
+        // Sync tags to PocketBase
+        try {
+            const pbUrl = process.env.NEXT_PUBLIC_POCKETBASE_URL || 'http://127.0.0.1:8090';
+            const pb = new PocketBase(pbUrl);
+            
+            // Pass the auth token to PocketBase
+            const token = request.headers.get("Authorization")?.split(" ")[1] || "";
+            if (token) {
+                pb.authStore.save(token, null);
+            }
+            
+            // Extract multiple tags
+            const tags = tag.split(",").map(t => t.trim()).filter(Boolean);
+
+            // Find existing tag record for this post
+            const existingRecords = await pb.collection("post_tags").getList(1, 1, {
+                filter: `post_uuid = "${slug}"`
+            });
+
+            if (existingRecords.items.length > 0) {
+                await pb.collection("post_tags").update(existingRecords.items[0].id, {
+                    tags: tags
+                });
+            } else {
+                await pb.collection("post_tags").create({
+                    post_uuid: slug,
+                    tags: tags
+                });
+            }
+        } catch (e) {
+            console.error("Failed to sync tags to DB:", e);
+            // Non-blocking error for now
         }
 
         return NextResponse.json({ redirect: `/blog/${slug}`, success: true });

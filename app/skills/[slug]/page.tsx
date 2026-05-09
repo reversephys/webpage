@@ -6,6 +6,7 @@ import { getUserMap } from "@/lib/users";
 import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { SkillActions } from "@/components/SkillActions";
 import AuthGuard from "@/components/AuthGuard";
+import { CommentsList } from "@/components/CommentsList";
 
 interface SkillPageProps {
     params: Promise<{ slug: string }>;
@@ -56,6 +57,9 @@ export default async function SkillPage({ params }: SkillPageProps) {
 
                     {/* Markdown content */}
                     <MarkdownRenderer content={skill.content} />
+
+                    {/* Comments section */}
+                    {skill.slug && <CommentsList postUuid={skill.slug} />}
                 </article>
             </main>
         </AuthGuard>

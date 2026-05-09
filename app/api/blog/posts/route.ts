@@ -8,7 +8,7 @@ import { getServerUserFromCookie } from "@/lib/auth-server";
 const CONTENTS_DIR = path.join(process.cwd(), "Contents", "BLOG");
 
 export async function GET() {
-    const posts = getAllPosts();
+    const posts = await getAllPosts();
     const userMap = await getUserMap();
 
     // Attach raw content for search
@@ -39,7 +39,7 @@ export async function GET() {
 
     const filteredPosts = hasAccess
         ? postsWithContent
-        : postsWithContent.filter(p => p.tag === "public");
+        : postsWithContent.filter(p => p.tag.split(",").map(t => t.trim()).includes("public"));
 
     return NextResponse.json(filteredPosts);
 }

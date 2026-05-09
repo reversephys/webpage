@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import PocketBase from "pocketbase";
 import { CONTENTS_DIR, getPostFolderName } from "@/lib/notice";
 import { verifyAuth, unauthorizedResponse } from "@/lib/auth-server";
 
@@ -10,7 +11,7 @@ export async function POST(request: NextRequest) {
 
     try {
         const formData = await request.formData();
-        const slug = formData.get("slug") as string;
+        const slug = formData.get("slug") as string; // This is the UUID
         const title = formData.get("title") as string;
         const tag = formData.get("tag") as string;
         const content = formData.get("content") as string;
@@ -29,10 +30,7 @@ export async function POST(request: NextRequest) {
 
         const oldFolderPath = path.join(CONTENTS_DIR, oldFolderName);
 
-        // Handle folder rename if title/tag changed?
-        // Actually, renaming folder changes the timestamp prefix if we regenerate it, which messes up ordering.
-        // Or we just keep the timestamp and update the suffix.
-        // Let's parse the old folder name to keep the timestamp.
+        // Keep timestamp from old folder
         const match = oldFolderName.match(/^(\d{14})_([^_]+)_(.+)$/);
         if (!match) {
             return NextResponse.json({ error: "Invalid folder structure" }, { status: 500 });
@@ -44,22 +42,13 @@ export async function POST(request: NextRequest) {
         const newFolderName = `${timestamp}_${safeTag}_${safeTitle}`;
         const newFolderPath = path.join(CONTENTS_DIR, newFolderName);
 
-        // Rename folder if needed
+        // Rename folder if title/tag changed
         if (oldFolderName !== newFolderName) {
             fs.renameSync(oldFolderPath, newFolderPath);
         }
 
-        // Update MD file
-        // Remove old MD file (if name changed)
-        // Find old MD file
-        const files = fs.readdirSync(newFolderPath); // Use new path
-        const oldMdFile = files.find(f => f.endsWith(".md"));
-        if (oldMdFile) {
-            fs.unlinkSync(path.join(newFolderPath, oldMdFile));
-        }
-
-        // Write new MD file
-        const mdPath = path.join(newFolderPath, `${safeTitle}.md`);
+        // Update MD file - MUST KEEP SAME FILENAME (slug)
+        const mdPath = path.join(newFolderPath, `${slug}.md`);
         fs.writeFileSync(mdPath, content, "utf-8");
 
         // Handle images
@@ -81,10 +70,41 @@ export async function POST(request: NextRequest) {
             fs.writeFileSync(path.join(imagesDir, img.name), buffer);
         }
 
-        return NextResponse.json({ success: true, redirect: `/notice/${safeTitle}` });
+        // Sync tags to PocketBase
+        try {
+            const pbUrl = process.env.NEXT_PUBLIC_POCKETBASE_URL || 'http://127.0.0.1:8090';
+            const pb = new PocketBase(pbUrl);
+
+            const token = request.headers.get("Authorization")?.split(" ")[1] || "";
+            if (token) {
+                pb.authStore.save(token, null);
+            }
+
+            const tags = tag.split(",").map(t => t.trim()).filter(Boolean);
+
+            const existingRecords = await pb.collection("post_tags").getList(1, 1, {
+                filter: `post_uuid = "${slug}"`
+            });
+
+            if (existingRecords.items.length > 0) {
+                await pb.collection("post_tags").update(existingRecords.items[0].id, {
+                    tags: tags
+                });
+            } else {
+                await pb.collection("post_tags").create({
+                    post_uuid: slug,
+                    tags: tags
+                });
+            }
+        } catch (e) {
+            console.error("Failed to sync tags to DB:", e);
+        }
+
+        return NextResponse.json({ success: true, redirect: `/notice/${slug}` });
 
     } catch (error) {
         console.error("Edit error", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
+
