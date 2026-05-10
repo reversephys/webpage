@@ -7,7 +7,7 @@ import { loginUser, registerUser, logoutUser, getCurrentUser, UserRecord } from 
 interface AuthContextType {
     user: UserRecord | null;
     login: (username: string, password: string) => Promise<void>;
-    register: (username: string, password: string, passwordConfirm: string) => Promise<void>;
+    register: (username: string, password: string, passwordConfirm: string, name: string) => Promise<void>;
     logout: () => void;
     loading: boolean;
 }

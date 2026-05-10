@@ -35,9 +35,11 @@ RUN npm install --include=dev
 
 # Start local PocketBase DB in background, run Next.js build, and stop it
 RUN pocketbase serve --dir /app/backend/pb_data & \
+    PB_PID=$! && \
     sleep 3 && \
-    npm run build && \
-    pkill pocketbase || true
+    npm run build; BUILD_EXIT=$?; \
+    kill $PB_PID || true; \
+    exit $BUILD_EXIT
 
 # Expose Next.js and PocketBase ports
 EXPOSE 3000
