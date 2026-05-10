@@ -42,11 +42,11 @@ export function Navbar() {
         { name: "Notice", href: "/notice" },
         {
             name: "POST",
-            href: "/feed",
+            href: "/blog",
             isDropdown: true,
             subItems: [
-                { name: "Feed", href: "/feed" },
                 { name: "Blog", href: "/blog" },
+                { name: "Feed", href: "/feed" },
                 { name: "Skills", href: "/skills", auth: true },
                 { name: "Staff", href: "/staff", auth: true },
             ]
