@@ -18,6 +18,8 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        const { getInitialPermissionGroup } = await import("@/lib/promotion");
+        const permissionGroup = getInitialPermissionGroup();
         const pb = new PocketBase(pbUrl);
 
         // Create the user
@@ -26,6 +28,7 @@ export async function POST(request: NextRequest) {
             password,
             passwordConfirm,
             name: name || "",
+            permission_group: permissionGroup,
         });
 
         // Auto-login after registration

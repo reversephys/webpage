@@ -3,9 +3,8 @@ import PocketBase from "pocketbase";
 
 export async function GET() {
     try {
-        const pb = new PocketBase("http://127.0.0.1:8090");
-
-
+        const pbUrl = process.env.NEXT_PUBLIC_POCKETBASE_URL || "http://127.0.0.1:8090";
+        const pb = new PocketBase(pbUrl);
 
         // Fetch users where permission_group is 1, 2, 3, or 4
         // Sort by permission_group ascending, then created descending
@@ -16,7 +15,7 @@ export async function GET() {
 
         const members = records.map(r => ({
             id: r.id,
-            name: r.name || r.username,
+            name: r.username,
             avatar: r.avatar ? `/api/files/_pb_users_auth_/${r.id}/${r.avatar}` : null,
             introduction: r.introduction || "",
             permission_group: r.permission_group
