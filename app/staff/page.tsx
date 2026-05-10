@@ -60,7 +60,7 @@ export default function StaffPage() {
     return (
         <main className="min-h-screen bg-background pt-32 pb-10 px-6 font-serif">
             <div className="max-w-4xl mx-auto">
-                <div className="flex items-end justify-between mb-8">
+                <div className="flex items-end justify-between mb-2">
                     <h1 className="text-3xl md:text-5xl font-eczar tracking-tight">Staff</h1>
                     <Link
                         href="/staff/write"
@@ -69,6 +69,9 @@ export default function StaffPage() {
                         Write
                     </Link>
                 </div>
+                <p className="text-gray-500 dark:text-gray-400 font-sans text-sm mb-8 tracking-wide">
+                    스태프 전용 업무 일지와 내부 논의를 위한 페이지입니다.
+                </p>
 
                 {/* Search bar */}
                 <div className="flex gap-2 mb-8">

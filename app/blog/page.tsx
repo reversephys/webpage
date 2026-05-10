@@ -52,7 +52,7 @@ export default function BlogPage() {
     return (
         <main className="min-h-screen bg-background pt-32 pb-10 px-6 font-serif">
             <div className="max-w-4xl mx-auto">
-                <div className="flex items-end justify-between mb-8">
+                <div className="flex items-end justify-between mb-2">
                     <h1 className="text-3xl md:text-5xl font-eczar tracking-tight">Posts</h1>
                     {user && user.permission_group !== undefined && Number(user.permission_group) >= 3 && (
                         <Link
@@ -63,6 +63,9 @@ export default function BlogPage() {
                         </Link>
                     )}
                 </div>
+                <p className="text-gray-500 dark:text-gray-400 font-sans text-sm mb-8 tracking-wide">
+                    Physical Lab에서 진행한 연구와 작업 내역을 상세히 기록하고 공유하는 페이지입니다.
+                </p>
 
                 {/* Search bar */}
                 <div className="flex gap-2 mb-8">

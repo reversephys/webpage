@@ -223,9 +223,12 @@ export default function NewsPage() {
     return (
         <main className="min-h-screen bg-background pt-32 pb-10 px-6 font-serif">
             <div className="max-w-6xl mx-auto">
-                <header className="mb-8 flex items-center justify-between">
+                <header className="mb-2 flex items-center justify-between">
                     <h1 className="text-3xl md:text-5xl font-eczar tracking-tight">Feed</h1>
                 </header>
+                <p className="text-gray-500 dark:text-gray-400 font-sans text-sm mb-8 tracking-wide">
+                    외부에서 발생하는 주요 이슈와 트렌드를 스크랩하고 확인하는 공간입니다.
+                </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {/* Left Column: Articles Grouped by Feed URL */}

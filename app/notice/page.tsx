@@ -44,7 +44,7 @@ export default function NoticePage() {
     return (
         <main className="min-h-screen bg-background pt-32 pb-10 px-6 font-serif">
             <div className="max-w-4xl mx-auto">
-                <div className="flex items-end justify-between mb-8">
+                <div className="flex items-end justify-between mb-2">
                     <h1 className="text-3xl md:text-5xl font-eczar tracking-tight">Notice</h1>
                     {user && (
                         <Link
@@ -55,6 +55,10 @@ export default function NoticePage() {
                         </Link>
                     )}
                 </div>
+                <p className="text-gray-500 dark:text-gray-400 font-sans text-sm mb-8 tracking-wide">
+                    Physical Lab의 공식 행사와 주요 소식을 외부에 알리는 공간입니다.
+                </p>
+
 
                 {/* Search bar */}
                 <div className="flex gap-2 mb-8">
