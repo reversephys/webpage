@@ -57,6 +57,10 @@ export default function StaffPage() {
         })
         : posts;
 
+    const pinnedPosts = filtered.filter(p => p.tag.split(",").map(t => t.trim().toLowerCase()).includes("pinned"));
+    const normalPosts = filtered.filter(p => !p.tag.split(",").map(t => t.trim().toLowerCase()).includes("pinned"));
+    const sortedPosts = [...pinnedPosts, ...normalPosts];
+
     return (
         <main className="min-h-screen bg-background pt-32 pb-10 px-6 font-serif">
             <div className="max-w-4xl mx-auto">
@@ -88,19 +92,24 @@ export default function StaffPage() {
                     <p className="text-gray-500 text-center py-20 text-lg">Loading...</p>
                 ) : (
                     <div className="space-y-6">
-                        {filtered.length === 0 ? (
+                        {sortedPosts.length === 0 ? (
                             <p className="text-gray-500 text-center py-20 italic">No posts found.</p>
                         ) : (
-                            filtered.map((post) => (
-                                <div key={post.slug} className="group border-b border-gray-100 dark:border-gray-800 pb-6">
+                            sortedPosts.map((post) => (
+                                <div key={post.slug} className={`group border-b border-gray-100 dark:border-gray-800 pb-6 ${post.tag.includes('pinned') ? 'bg-gray-50/50 dark:bg-gray-900/50 -mx-4 px-4 rounded-lg pt-4' : ''}`}>
                                     {/* Content (Full Width) */}
                                     <div>
-                                        <div className="flex items-center gap-4 mb-2 text-xs tracking-[0.2em] text-gray-400 uppercase font-sans">
-                                            <span>{post.date}</span>
+                                        <div className="flex items-center gap-4 mb-2 text-xs tracking-[0.2em] uppercase font-sans">
+                                            {post.tag.includes('pinned') && (
+                                                <span className="text-red-500 font-bold flex items-center gap-1">
+                                                    📌 PINNED
+                                                </span>
+                                            )}
+                                            <span className="text-gray-400">{post.date}</span>
                                             <span className="w-8 h-[1px] bg-gray-200 dark:bg-gray-700" />
-                                            <span>BY {post.authorName}</span>
+                                            <span className="text-gray-400">BY {post.authorName}</span>
                                             <span className="w-8 h-[1px] bg-gray-200 dark:bg-gray-700" />
-                                            <span>{post.tag}</span>
+                                            <span className="text-gray-400">{post.tag}</span>
                                         </div>
 
                                         <Link href={`/staff/${post.slug}`}>

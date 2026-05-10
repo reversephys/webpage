@@ -285,7 +285,7 @@ function NoticeWriteEditor() {
                 <div className="mb-8">
                     <label className="block text-xs font-sans uppercase tracking-widest text-gray-400 mb-1">Tag</label>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 font-sans break-keep">
-                        게시글을 분류하는 태그입니다. <span className="font-semibold text-gray-700 dark:text-gray-300">public</span>을 입력하면 로그인 권한에 상관없이 누구나 열람할 수 있는 전체공개 글로 설정됩니다.
+                        게시글을 분류하는 태그입니다. <span className="font-semibold text-gray-700 dark:text-gray-300">public</span>을 입력하면 전체공개 글로 설정되며, <span className="font-semibold text-gray-700 dark:text-gray-300">pinned</span>를 입력하면 게시판 상단에 고정됩니다.
                     </p>
                     <input
                         type="text"
