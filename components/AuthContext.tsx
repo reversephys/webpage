@@ -50,8 +50,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(getCurrentUser());
     };
 
-    const register = async (username: string, password: string, passwordConfirm: string) => {
-        await registerUser(username, password, passwordConfirm);
+    const register = async (username: string, password: string, passwordConfirm: string, name: string) => {
+        await registerUser(username, password, passwordConfirm, name);
         setUser(getCurrentUser());
     };
 

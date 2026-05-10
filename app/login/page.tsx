@@ -10,6 +10,7 @@ export default function LoginPage() {
 
     const [isRegister, setIsRegister] = useState(false);
     const [username, setUsername] = useState("");
+    const [name, setName] = useState(""); // Added name state
     const [password, setPassword] = useState("");
     const [passwordConfirm, setPasswordConfirm] = useState("");
     const [error, setError] = useState("");
@@ -27,7 +28,7 @@ export default function LoginPage() {
                     setSubmitting(false);
                     return;
                 }
-                await register(username, password, passwordConfirm);
+                await register(username, password, passwordConfirm, name); // Pass name
             } else {
                 await login(username, password);
             }
@@ -48,6 +49,21 @@ export default function LoginPage() {
                 </h1>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
+                    {isRegister && (
+                        <div>
+                            <label className="block text-xs font-sans uppercase tracking-widest text-gray-500 mb-2">
+                                Real Name
+                            </label>
+                            <input
+                                type="text"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                required
+                                className="w-full px-4 py-3 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded focus:outline-none focus:border-foreground transition-colors text-base"
+                                placeholder="Enter your real name"
+                            />
+                        </div>
+                    )}
                     <div>
                         <label className="block text-xs font-sans uppercase tracking-widest text-gray-500 mb-2">
                             Username

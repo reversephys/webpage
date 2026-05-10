@@ -8,22 +8,24 @@ import PocketBase from "pocketbase";
  */
 export async function POST(request: NextRequest) {
     try {
-        const { username, password, passwordConfirm } = await request.json();
+        const { username, password, passwordConfirm, name } = await request.json();
+        const pbUrl = process.env.NEXT_PUBLIC_POCKETBASE_URL || 'http://127.0.0.1:8090';
 
         if (!username || !password || !passwordConfirm) {
             return NextResponse.json(
-                { error: "All fields are required." },
+                { error: "Username and password fields are required." },
                 { status: 400 }
             );
         }
 
-        const pb = new PocketBase("http://127.0.0.1:8090");
+        const pb = new PocketBase(pbUrl);
 
         // Create the user
         await pb.collection("users").create({
             username,
             password,
             passwordConfirm,
+            name: name || "",
         });
 
         // Auto-login after registration
@@ -33,10 +35,18 @@ export async function POST(request: NextRequest) {
             token: authData.token,
             record: authData.record,
         });
-    } catch (error: unknown) {
-        console.error("Register error:", error);
-        const message =
-            error instanceof Error ? error.message : "Registration failed.";
+    } catch (error: any) {
+        console.error("Register error details:", error.data || error);
+        
+        let message = "Registration failed.";
+        if (error.data?.data) {
+            // PocketBase validation error details
+            const firstError = Object.values(error.data.data)[0] as any;
+            message = firstError?.message || "Invalid data provided.";
+        } else if (error.message) {
+            message = error.message;
+        }
+        
         return NextResponse.json({ error: message }, { status: 400 });
     }
 }
