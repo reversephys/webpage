@@ -110,7 +110,7 @@ export function CommentsList({ postUuid }: { postUuid: string }) {
     };
 
     const getInitial = (comment: Comment) => {
-        const name = comment.expand?.user_id?.name || comment.expand?.user_id?.username || "U";
+        const name = comment.expand?.user_id?.username || "U";
         return name[0].toUpperCase();
     };
 
@@ -144,7 +144,7 @@ export function CommentsList({ postUuid }: { postUuid: string }) {
                                     </div>
                                     <div>
                                         <p className="text-sm font-bold">
-                                            {comment.expand?.user_id?.name || comment.expand?.user_id?.username || "Unknown User"}
+                                            {comment.expand?.user_id?.username || "Unknown User"}
                                         </p>
                                         <p className="text-[10px] text-gray-500 uppercase tracking-wider">
                                             {formatDate(comment.created)}

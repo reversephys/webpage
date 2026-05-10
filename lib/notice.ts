@@ -109,7 +109,7 @@ export async function getAllPosts(): Promise<NoticePost[]> {
     const folders = fs.readdirSync(CONTENTS_DIR, { withFileTypes: true })
         .filter((d) => d.isDirectory());
 
-    const posts: NoticePost[] = [];
+    const postMap = new Map<string, NoticePost>();
     const slugs: string[] = [];
 
     for (const folder of folders) {
@@ -130,8 +130,7 @@ export async function getAllPosts(): Promise<NoticePost[]> {
         const thumbnail = findThumbnail(folderPath, slug);
         const excerpt = extractExcerpt(content);
 
-        slugs.push(slug);
-        posts.push({
+        const post: NoticePost = {
             slug,
             title: parsed.title.replace(/-/g, " "),
             date: formatDate(parsed.rawDate),
@@ -139,12 +138,21 @@ export async function getAllPosts(): Promise<NoticePost[]> {
             tag: parsed.tag,
             excerpt,
             thumbnail,
-        });
+        };
+
+        // If duplicate slug found, keep the one with the newer folder name (timestamp)
+        const existing = postMap.get(slug);
+        if (!existing || folder.name > (getPostFolderName(slug) || "")) {
+            postMap.set(slug, post);
+        }
     }
+
+    const posts = Array.from(postMap.values());
+    const finalSlugs = posts.map(p => p.slug);
 
     // Fetch tags from PocketBase
     try {
-        const tagsMap = await getTagsForPosts(slugs);
+        const tagsMap = await getTagsForPosts(finalSlugs);
         for (const post of posts) {
             if (tagsMap[post.slug] && tagsMap[post.slug].length > 0) {
                 post.tag = tagsMap[post.slug].join(", ");
